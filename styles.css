@@ -1,9 +1,8 @@
 :root {
   --sky: #5fb2ff;
-  --panel: rgba(8, 22, 40, 0.82);
-  --panel-border: #9fd2ff;
+  --panel: rgba(8, 22, 40, 0.84);
+  --panel-border: #a7d7ff;
   --text: #f8f6ed;
-  --accent: #ffd95e;
 }
 
 * {
@@ -18,16 +17,21 @@ body {
   overflow: hidden;
   background: radial-gradient(circle at 20% 10%, #8ad0ff, #4d8fd9 48%, #255a9b);
   color: var(--text);
-  font-family: "Trebuchet MS", "Verdana", sans-serif;
+  font-family: "Rubik", "Heebo", "Trebuchet MS", "Verdana", sans-serif;
+}
+
+body {
+  display: grid;
+  place-items: center;
 }
 
 #gameCanvas {
   display: block;
-  width: 100vw;
-  height: 100vh;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   background: var(--sky);
+  border: 2px solid rgba(223, 241, 255, 0.6);
+  box-shadow: 0 12px 38px rgba(6, 16, 30, 0.55);
 }
 
 .hud {
@@ -37,15 +41,14 @@ body {
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
-  gap: 18px;
+  gap: 12px;
   padding: 10px 14px;
   border: 2px solid var(--panel-border);
   border-radius: 8px;
   background: var(--panel);
   color: var(--text);
   font-size: 13px;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
+  letter-spacing: 0.2px;
   font-weight: 700;
   backdrop-filter: blur(3px);
 }
@@ -60,20 +63,20 @@ body {
   justify-content: center;
   padding: 24px;
   text-align: center;
-  background: linear-gradient(180deg, rgba(8, 18, 36, 0.78), rgba(10, 32, 58, 0.92));
+  background: linear-gradient(180deg, rgba(8, 18, 36, 0.76), rgba(10, 32, 58, 0.9));
 }
 
 .overlay h1 {
   margin: 0 0 14px;
   font-size: clamp(34px, 8vw, 66px);
-  letter-spacing: 2px;
+  letter-spacing: 1px;
   color: #fff5c1;
   text-shadow: 0 3px 0 #5b2f00;
 }
 
 .overlay p {
   margin: 6px 0;
-  max-width: 780px;
+  max-width: 820px;
   color: #e8f4ff;
 }
 
@@ -114,9 +117,9 @@ body {
   height: 72px;
   border-radius: 14px;
   border: 2px solid #bedfff;
-  background: rgba(12, 34, 58, 0.72);
+  background: rgba(12, 34, 58, 0.74);
   color: #fff;
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 800;
   pointer-events: auto;
   touch-action: none;
@@ -129,8 +132,8 @@ body {
 @media (max-width: 900px), (pointer: coarse) {
   .hud {
     top: 6px;
-    gap: 10px;
-    padding: 8px 10px;
+    gap: 8px;
+    padding: 8px 9px;
     font-size: 11px;
   }
 

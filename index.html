@@ -1,38 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Super Ethan Clone</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>סופר איתן</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <canvas id="gameCanvas" aria-label="Super Ethan game canvas"></canvas>
+  <canvas id="gameCanvas" aria-label="קנבס משחק סופר איתן"></canvas>
 
-  <div id="hud" class="hud hidden" aria-live="polite">
-    <span id="hudScore">SCORE 000000</span>
-    <span id="hudCoins">COINS x00</span>
-    <span id="hudWorld">WORLD 1-1</span>
-    <span id="hudTime">TIME 400</span>
-    <span id="hudLives">LIVES x3</span>
+  <div id="hud" class="hud hidden" aria-live="polite" dir="rtl">
+    <span id="hudScore">ניקוד 000000</span>
+    <span id="hudCoins">מטבעות x00</span>
+    <span id="hudWorld">עולם 1-1</span>
+    <span id="hudTime">זמן 500</span>
+    <span id="hudLives">חיים x5</span>
   </div>
 
-  <div id="titleScreen" class="overlay">
-    <h1>SUPER ETHAN</h1>
-    <p>Closest-play clone built with HTML5 Canvas.</p>
-    <p>Move: A/D or Arrows | Jump: Space/Z | Run: Shift | Duck: S/Down</p>
-    <button id="startBtn" type="button">Start Game</button>
+  <div id="titleScreen" class="overlay" dir="rtl">
+    <h1>סופר איתן</h1>
+    <p>משחק פלטפורמה בסגנון קלאסי, מותאם לילדים.</p>
+    <p>תנועה: A/D או חצים | קפיצה: רווח / Z | ריצה: Shift | התכופפות: S / חץ למטה</p>
+    <button id="startBtn" type="button">התחל משחק</button>
   </div>
 
-  <div id="gameOverScreen" class="overlay hidden">
-    <h1>GAME OVER</h1>
-    <button id="retryBtn" type="button">Retry</button>
+  <div id="gameOverScreen" class="overlay hidden" dir="rtl">
+    <h1>נגמרו החיים</h1>
+    <button id="retryBtn" type="button">נסה שוב</button>
   </div>
 
-  <div id="winScreen" class="overlay hidden">
-    <h1>YOU WIN</h1>
-    <p>Ethan reached the castle.</p>
-    <button id="againBtn" type="button">Play Again</button>
+  <div id="winScreen" class="overlay hidden" dir="rtl">
+    <h1>כל הכבוד!</h1>
+    <p>איתן הגיע לטירה וסיים את השלב.</p>
+    <button id="againBtn" type="button">שחק שוב</button>
   </div>
 
   <div id="touchControls" class="touch-controls" aria-hidden="true">
@@ -41,8 +41,8 @@
       <button data-touch="right" type="button">▶</button>
     </div>
     <div class="right-pad">
-      <button data-touch="run" type="button">RUN</button>
-      <button data-touch="jump" type="button">JUMP</button>
+      <button data-touch="run" type="button">רוץ</button>
+      <button data-touch="jump" type="button">קפוץ</button>
     </div>
   </div>
 

@@ -6,26 +6,29 @@
   const LEVEL_ROWS = 16;
   const GROUND_ROW = 13;
 
-  const PLAYER_SMALL = { w: 34, h: 50 };
-  const PLAYER_BIG = { w: 34, h: 74 };
+  const PLAYER_SMALL = { w: 40, h: 58 };
+  const PLAYER_BIG = { w: 40, h: 84 };
 
-  const GRAVITY = 2100;
-  const MAX_FALL = 980;
+  const GRAVITY = 1720;
+  const MAX_FALL = 920;
 
-  const WALK_SPEED = 265;
-  const RUN_SPEED = 360;
-  const ACCEL_GROUND = 2600;
-  const ACCEL_AIR = 1600;
-  const FRICTION = 3200;
+  const WALK_SPEED = 240;
+  const RUN_SPEED = 330;
+  const ACCEL_GROUND = 2200;
+  const ACCEL_AIR = 1400;
+  const FRICTION = 2800;
 
-  const JUMP_VELOCITY = 730;
-  const BOUNCE_VELOCITY = 360;
-  const COYOTE_TIME = 0.09;
-  const JUMP_BUFFER = 0.11;
+  const JUMP_VELOCITY = 780;
+  const BOUNCE_VELOCITY = 430;
+  const COYOTE_TIME = 0.18;
+  const JUMP_BUFFER = 0.2;
 
-  const WORLD_TIME_START = 400;
-  const RESPAWN_DELAY = 1.4;
+  const WORLD_TIME_START = 500;
+  const RESPAWN_DELAY = 1.1;
   const DEATH_HOP = 660;
+  const VIEW_ASPECT = 16 / 9;
+  const VERTICAL_VIEW_PADDING = 24;
+  const CHECKPOINTS = [3, 72, 138, 202].map((tileX) => tileX * TILE);
 
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
@@ -95,7 +98,7 @@
     world: "1-1",
     score: 0,
     coins: 0,
-    lives: 3,
+    lives: 5,
     timeLeft: WORLD_TIME_START,
     secondTick: 0,
     cameraX: 0,
@@ -109,7 +112,9 @@
     flagCaptured: false,
     flagPoleX: 0,
     castleX: 0,
-    respawnTimer: 0
+    respawnTimer: 0,
+    checkpointX: 3 * TILE,
+    nextCheckpointIdx: 1
   };
 
   function clamp(v, min, max) {
@@ -303,7 +308,7 @@
     }
 
     const pitRanges = [
-      [30, 31], [49, 50], [87, 88], [142, 144], [174, 176], [198, 203]
+      [30, 30], [49, 49], [87, 87], [142, 143], [174, 174], [198, 199]
     ];
 
     for (const [start, end] of pitRanges) {
@@ -335,8 +340,8 @@
     addQuestionLine(9, 154, ["Q", "Q", "B", "Q"]);
     addQuestionLine(9, 182, ["B", "B", "Q", "B", "B"]);
 
-    const stairBaseX = 208;
-    for (let step = 0; step < 8; step += 1) {
+    const stairBaseX = 210;
+    for (let step = 0; step < 5; step += 1) {
       for (let y = 0; y <= step; y += 1) {
         setTile(stairBaseX + step, GROUND_ROW - y, "hard");
       }
@@ -348,14 +353,21 @@
     }
 
     addPipe(22, 2);
-    addPipe(29, 3);
-    addPipe(37, 4);
-    addPipe(46, 4);
+    addPipe(29, 2);
+    addPipe(37, 3);
+    addPipe(46, 3);
     addPipe(61, 2);
-    addPipe(78, 3);
+    addPipe(78, 2);
     addPipe(110, 2);
-    addPipe(130, 3);
-    addPipe(170, 4);
+    addPipe(130, 2);
+    addPipe(170, 3);
+
+    for (const [start, end] of pitRanges) {
+      setTile(start - 1, GROUND_ROW - 1, "hard");
+      setTile(end + 1, GROUND_ROW - 1, "hard");
+    }
+    setTile(198, GROUND_ROW - 2, "hard");
+    setTile(199, GROUND_ROW - 2, "hard");
 
     for (let x = 8; x < LEVEL_COLS; x += 14) {
       level.sceneryClouds.push({ x: x * TILE + (x % 2) * 80, y: 60 + (x % 3) * 34, w: TILE * 2.6, h: TILE * 1.3 });
@@ -378,8 +390,9 @@
   function collectCoin(x, y) {
     state.coins += 1;
     state.score += 100;
-    if (state.coins % 100 === 0) {
+    if (state.coins % 50 === 0) {
       state.lives += 1;
+      state.floating.push({ text: "חיים +1", x, y: y - 18, t: 0.9, color: "#d4ff8f" });
     }
     state.floating.push({ text: "+100", x, y, t: 0.7, color: "#ffe26f" });
   }
@@ -391,7 +404,7 @@
       y,
       w: 28,
       h: 28,
-      vx: 80,
+      vx: 72,
       vy: -80,
       alive: true
     });
@@ -419,7 +432,7 @@
       y,
       w: 36,
       h: 36,
-      vx: -62,
+      vx: -42,
       vy: 0,
       dead: false,
       deadTimer: 0,
@@ -429,8 +442,7 @@
 
   function initialEnemyLayout() {
     const positions = [
-      [26, 10], [33, 10], [41, 10], [55, 10], [66, 10],
-      [84, 10], [101, 10], [126, 10], [152, 10], [165, 10], [188, 10]
+      [26, 10], [41, 10], [55, 10], [84, 10], [126, 10], [152, 10], [188, 10]
     ];
     for (const [tx, ty] of positions) {
       spawnEnemy(tx * TILE + 6, ty * TILE);
@@ -441,7 +453,8 @@
     const coins = [
       [12, 8], [13, 8], [14, 8], [40, 7], [41, 7], [60, 6], [61, 6],
       [76, 8], [96, 8], [97, 8], [98, 8], [132, 7], [133, 7],
-      [157, 8], [180, 8], [181, 8], [182, 8], [210, 6], [211, 6]
+      [146, 7], [147, 7], [157, 8], [171, 8], [180, 8], [181, 8], [182, 8],
+      [210, 6], [211, 6], [212, 6], [213, 6]
     ];
 
     for (const [tx, ty] of coins) {
@@ -449,10 +462,10 @@
     }
   }
 
-  function createPlayer() {
+  function createPlayer(spawnX = 3 * TILE) {
     return {
-      x: 3 * TILE,
-      y: 5 * TILE,
+      x: spawnX,
+      y: (GROUND_ROW - 3) * TILE,
       w: PLAYER_SMALL.w,
       h: PLAYER_SMALL.h,
       vx: 0,
@@ -619,21 +632,23 @@
     p.h = PLAYER_BIG.h;
     p.invulnerable = 1.6;
     state.score += 1000;
-    state.floating.push({ text: "POWER UP", x: p.x + 20, y: p.y - 10, t: 1.0, color: "#c5ff85" });
+    state.floating.push({ text: "כוח על!", x: p.x + 20, y: p.y - 10, t: 1.0, color: "#c5ff85" });
   }
 
   function startGame() {
     state.mode = "playing";
     state.score = 0;
     state.coins = 0;
-    state.lives = 3;
+    state.lives = 5;
     state.timeLeft = WORLD_TIME_START;
     state.secondTick = 0;
     state.cameraX = 0;
     state.flash = 0;
     state.flagCaptured = false;
+    state.checkpointX = CHECKPOINTS[0];
+    state.nextCheckpointIdx = 1;
     state.level = createLevel();
-    state.player = createPlayer();
+    state.player = createPlayer(state.checkpointX);
     state.enemies = [];
     state.items = [];
     state.floating = [];
@@ -642,8 +657,8 @@
     initialEnemyLayout();
     initialCoinsLayout();
 
-    state.flagPoleX = 228 * TILE;
-    state.castleX = 234 * TILE;
+    state.flagPoleX = 224 * TILE;
+    state.castleX = 230 * TILE;
 
     ui.title.classList.add("hidden");
     ui.gameOver.classList.add("hidden");
@@ -659,10 +674,10 @@
     }
 
     state.mode = "playing";
-    state.timeLeft = Math.max(60, state.timeLeft);
-    state.player = createPlayer();
-    state.player.invulnerable = 1.2;
-    state.cameraX = 0;
+    state.timeLeft = Math.max(90, state.timeLeft);
+    state.player = createPlayer(state.checkpointX);
+    state.player.invulnerable = 1.8;
+    state.cameraX = clamp(state.checkpointX - canvas.clientWidth * 0.25, 0, Math.max(0, state.level.width - canvas.clientWidth));
   }
 
   function keySet(code, down) {
@@ -812,7 +827,7 @@
       if (overlap(p, flagRect)) {
         state.flagCaptured = true;
         state.score += 5000;
-        state.floating.push({ text: "FLAG +5000", x: p.x, y: p.y - 20, t: 1.2, color: "#fff5a8" });
+        state.floating.push({ text: "דגל +5000", x: p.x, y: p.y - 20, t: 1.2, color: "#fff5a8" });
       }
     } else if (p.x > state.castleX + TILE * 1.5 && state.mode === "playing") {
       state.mode = "win";
@@ -827,6 +842,12 @@
     if (p.x + p.w > state.level.width) {
       p.x = state.level.width - p.w;
       p.vx = 0;
+    }
+
+    if (!state.flagCaptured && state.nextCheckpointIdx < CHECKPOINTS.length && p.x >= CHECKPOINTS[state.nextCheckpointIdx]) {
+      state.checkpointX = CHECKPOINTS[state.nextCheckpointIdx];
+      state.nextCheckpointIdx += 1;
+      state.floating.push({ text: "נקודת שמירה", x: p.x + 12, y: p.y - 14, t: 1, color: "#b7ebff" });
     }
 
     p.animT += dt;
@@ -864,7 +885,7 @@
       moveWithCollisions(enemy, dt, null);
 
       if (enemy.vx === 0) {
-        enemy.vx = (Math.random() > 0.5 ? 1 : -1) * 62;
+        enemy.vx = (Math.random() > 0.5 ? 1 : -1) * 42;
       }
 
       if (enemy.onGround && !enemySupportCheck(enemy)) {
@@ -877,7 +898,7 @@
 
       if (overlap(p, enemy) && !p.dead && state.mode === "playing") {
         const playerBottom = p.y + p.h;
-        const stomp = p.vy > 140 && playerBottom - enemy.y < 22;
+        const stomp = p.vy > 120 && playerBottom - enemy.y < 28;
         if (stomp) {
           enemy.dead = true;
           enemy.deadTimer = 0.45;
@@ -1049,7 +1070,14 @@
     }
   }
 
-  function drawBackground(viewW, viewH) {
+  function getWorldRenderOffsetY(viewH) {
+    if (!state.level) {
+      return 0;
+    }
+    return Math.min(0, viewH - state.level.height - VERTICAL_VIEW_PADDING);
+  }
+
+  function drawBackground(viewW, viewH, offsetY) {
     const sky = assets.sky;
     if (sky) {
       const sw = 64;
@@ -1069,16 +1097,16 @@
 
     for (const cloud of state.level.sceneryClouds) {
       const x = cloud.x - state.cameraX * 0.45;
-      drawImageOrFallback(cloudImg, x, cloud.y, cloud.w, cloud.h, "rgba(255,255,255,0.8)");
+      drawImageOrFallback(cloudImg, x, cloud.y + offsetY, cloud.w, cloud.h, "rgba(255,255,255,0.8)");
     }
 
     for (const bush of state.level.sceneryBushes) {
       const x = bush.x - state.cameraX * 0.78;
-      drawImageOrFallback(bushImg, x, bush.y, bush.w, bush.h, "#2f9e4f");
+      drawImageOrFallback(bushImg, x, bush.y + offsetY, bush.w, bush.h, "#2f9e4f");
     }
   }
 
-  function drawTiles() {
+  function drawTiles(offsetY) {
     const level = state.level;
     const viewW = canvas.clientWidth;
     const startX = Math.floor(state.cameraX / TILE) - 1;
@@ -1098,12 +1126,12 @@
         }
 
         const image = getTileImage(tile.type);
-        drawImageOrFallback(image, x * TILE - state.cameraX, drawY, TILE, TILE, "#7d5a34");
+        drawImageOrFallback(image, x * TILE - state.cameraX, drawY + offsetY, TILE, TILE, "#7d5a34");
       }
     }
   }
 
-  function drawPipes() {
+  function drawPipes(offsetY) {
     const topImg = assets.pipe_top;
     const bodyImg = assets.pipe_body;
 
@@ -1112,14 +1140,14 @@
         const py = pipe.y + i * TILE;
         const isTop = i === 0;
         const img = isTop ? topImg : bodyImg;
-        drawImageOrFallback(img, pipe.x - state.cameraX, py, pipe.w, TILE, "#169b3d");
+        drawImageOrFallback(img, pipe.x - state.cameraX, py + offsetY, pipe.w, TILE, "#169b3d");
       }
     }
   }
 
-  function drawFlagAndCastle() {
+  function drawFlagAndCastle(offsetY) {
     const poleX = state.flagPoleX - state.cameraX;
-    const poleY = (GROUND_ROW - 5) * TILE;
+    const poleY = (GROUND_ROW - 5) * TILE + offsetY;
 
     ctx.fillStyle = "#f7f7f7";
     ctx.fillRect(poleX, poleY, 10, 6 * TILE);
@@ -1128,39 +1156,39 @@
     ctx.fillRect(poleX + 10, poleY + 16, 52, 32);
 
     const castleBaseX = state.castleX - state.cameraX;
-    const castleBaseY = (GROUND_ROW - 2) * TILE;
+    const castleBaseY = (GROUND_ROW - 2) * TILE + offsetY;
     ctx.fillStyle = "#8a8478";
     ctx.fillRect(castleBaseX, castleBaseY, TILE * 3.5, TILE * 2);
     ctx.fillStyle = "#6f6558";
     ctx.fillRect(castleBaseX + TILE * 1.1, castleBaseY - TILE * 1.2, TILE * 1.3, TILE * 1.2);
   }
 
-  function drawItems() {
+  function drawItems(offsetY) {
     for (const item of state.items) {
       const x = item.x - state.cameraX;
       if (item.kind === "coin") {
-        drawImageOrFallback(assets.coin, x, item.y, item.w, item.h, "#f6da55");
+        drawImageOrFallback(assets.coin, x, item.y + offsetY, item.w, item.h, "#f6da55");
       } else if (item.kind === "mushroom") {
-        drawImageOrFallback(assets.mushroom, x, item.y, item.w, item.h, "#ff4747");
+        drawImageOrFallback(assets.mushroom, x, item.y + offsetY, item.w, item.h, "#ff4747");
       }
     }
   }
 
-  function drawEnemies() {
+  function drawEnemies(offsetY) {
     for (const enemy of state.enemies) {
       const x = enemy.x - state.cameraX;
       if (enemy.dead) {
-        drawImageOrFallback(assets.goomba_squish || assets.goomba, x, enemy.y + enemy.h * 0.45, enemy.w, enemy.h * 0.55, "#7f4f2f");
+        drawImageOrFallback(assets.goomba_squish || assets.goomba, x, enemy.y + enemy.h * 0.45 + offsetY, enemy.w, enemy.h * 0.55, "#7f4f2f");
       } else {
-        drawImageOrFallback(assets.goomba, x, enemy.y, enemy.w, enemy.h, "#7f4f2f");
+        drawImageOrFallback(assets.goomba, x, enemy.y + offsetY, enemy.w, enemy.h, "#7f4f2f");
       }
     }
   }
 
-  function drawPlayer() {
+  function drawPlayer(offsetY) {
     const p = state.player;
     const drawX = p.x - state.cameraX;
-    const drawY = p.y;
+    const drawY = p.y + offsetY;
 
     let image = assets.player_idle;
     const speed = Math.abs(p.vx);
@@ -1195,21 +1223,21 @@
     ctx.restore();
   }
 
-  function drawFloatingText() {
+  function drawFloatingText(offsetY) {
     ctx.font = "bold 16px Verdana";
     ctx.textAlign = "center";
     for (const msg of state.floating) {
       ctx.fillStyle = msg.color;
-      ctx.fillText(msg.text, msg.x - state.cameraX, msg.y);
+      ctx.fillText(msg.text, msg.x - state.cameraX, msg.y + offsetY);
     }
     ctx.textAlign = "left";
   }
 
-  function drawParticles() {
+  function drawParticles(offsetY) {
     for (const p of state.particles) {
       ctx.globalAlpha = clamp(p.life * 2, 0, 1);
       ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - state.cameraX, p.y, 4, 4);
+      ctx.fillRect(p.x - state.cameraX, p.y + offsetY, 4, 4);
     }
     ctx.globalAlpha = 1;
   }
@@ -1217,6 +1245,7 @@
   function render() {
     const viewW = canvas.clientWidth;
     const viewH = canvas.clientHeight;
+    const offsetY = getWorldRenderOffsetY(viewH);
 
     ctx.clearRect(0, 0, viewW, viewH);
 
@@ -1224,29 +1253,37 @@
       return;
     }
 
-    drawBackground(viewW, viewH);
-    drawTiles();
-    drawPipes();
-    drawFlagAndCastle();
-    drawItems();
-    drawEnemies();
-    drawParticles();
-    drawPlayer();
-    drawFloatingText();
+    drawBackground(viewW, viewH, offsetY);
+    drawTiles(offsetY);
+    drawPipes(offsetY);
+    drawFlagAndCastle(offsetY);
+    drawItems(offsetY);
+    drawEnemies(offsetY);
+    drawParticles(offsetY);
+    drawPlayer(offsetY);
+    drawFloatingText(offsetY);
   }
 
   function updateHud() {
-    hud.score.textContent = `SCORE ${pad(state.score, 6)}`;
-    hud.coins.textContent = `COINS x${pad(state.coins, 2)}`;
-    hud.world.textContent = `WORLD ${state.world}`;
-    hud.time.textContent = `TIME ${pad(Math.max(0, state.timeLeft), 3)}`;
-    hud.lives.textContent = `LIVES x${state.lives}`;
+    hud.score.textContent = `ניקוד ${pad(state.score, 6)}`;
+    hud.coins.textContent = `מטבעות x${pad(state.coins, 2)}`;
+    hud.world.textContent = `עולם ${state.world}`;
+    hud.time.textContent = `זמן ${pad(Math.max(0, state.timeLeft), 3)}`;
+    hud.lives.textContent = `חיים x${state.lives}`;
   }
 
   function resizeCanvas() {
     const ratio = Math.max(1, window.devicePixelRatio || 1);
-    const cssW = window.innerWidth;
-    const cssH = window.innerHeight;
+    let cssW = window.innerWidth;
+    let cssH = window.innerHeight;
+    const targetAspect = window.innerHeight > window.innerWidth ? (4 / 3) : VIEW_ASPECT;
+    const currentAspect = cssW / cssH;
+
+    if (currentAspect > targetAspect) {
+      cssW = Math.floor(cssH * targetAspect);
+    } else {
+      cssH = Math.floor(cssW / targetAspect);
+    }
 
     canvas.style.width = `${cssW}px`;
     canvas.style.height = `${cssH}px`;
@@ -1293,8 +1330,8 @@
     state.player = createPlayer();
     initialEnemyLayout();
     initialCoinsLayout();
-    state.flagPoleX = 228 * TILE;
-    state.castleX = 234 * TILE;
+    state.flagPoleX = 224 * TILE;
+    state.castleX = 230 * TILE;
 
     hud.root.classList.add("hidden");
     requestAnimationFrame(loop);
@@ -1302,6 +1339,6 @@
 
   init().catch((err) => {
     console.error(err);
-    ui.title.innerHTML = "<h1>Load Error</h1><p>Could not load required assets.</p>";
+    ui.title.innerHTML = "<h1>שגיאת טעינה</h1><p>לא ניתן לטעון את קבצי המשחק.</p>";
   });
 })();
