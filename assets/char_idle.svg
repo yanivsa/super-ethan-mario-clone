@@ -1,0 +1,9 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="64" height="64" fill="#0000FF" />
+  <rect x="20" y="10" width="24" height="24" fill="#FFCC99" /> <!-- Face -->
+  <rect x="20" y="5" width="24" height="10" fill="#000000" /> <!-- Kippah/Hair -->
+  <circle cx="28" cy="20" r="2" fill="green" /> <!-- Eye -->
+  <circle cx="36" cy="20" r="2" fill="green" /> <!-- Eye -->
+  <rect x="10" y="34" width="44" height="30" fill="#0000AA" /> <!-- Shirt -->
+  <text x="32" y="55" font-family="Arial" font-size="10" fill="white" text-anchor="middle">ETHAN</text>
+</svg>

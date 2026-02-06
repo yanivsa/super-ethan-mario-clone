@@ -1,0 +1,10 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+      <rect x="17" y="50" width="8" height="14" fill="#0000FF" transform="rotate(10, 26, 50)" /><rect x="39" y="50" width="8" height="14" fill="#0000FF" transform="rotate(-10, 38, 50)" />
+      <rect x="10" y="34" width="44" height="20" fill="#0000AA" />
+      <rect x="10" y="30" width="10" height="20" fill="#0000AA" transform="rotate(-20, 15, 40)"/><rect x="44" y="30" width="10" height="20" fill="#0000AA" transform="rotate(20, 49, 40)"/>
+      <rect x="25" y="40" width="14" height="8" fill="#FFFFFF" rx="2" /> <!-- Logo -->
+      <rect x="20" y="10" width="24" height="24" fill="#FFCC99" />
+      <rect x="20" y="5" width="24" height="10" fill="#000000" />
+      <circle cx="28" cy="20" r="2" fill="green" />
+      <circle cx="36" cy="20" r="2" fill="green" />
+    </svg>

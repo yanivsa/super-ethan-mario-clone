@@ -1,0 +1,10 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="800" height="600" fill="#87CEEB" /> <!-- Sky Blue -->
+  <circle cx="100" cy="100" r="40" fill="#FFFFFF" opacity="0.8" /> <!-- Cloud 1 -->
+  <circle cx="140" cy="100" r="50" fill="#FFFFFF" opacity="0.8" />
+  <circle cx="180" cy="100" r="40" fill="#FFFFFF" opacity="0.8" />
+  
+  <circle cx="500" cy="200" r="60" fill="#FFFFFF" opacity="0.6" /> <!-- Cloud 2 -->
+  <circle cx="560" cy="200" r="70" fill="#FFFFFF" opacity="0.6" />
+  <circle cx="620" cy="200" r="60" fill="#FFFFFF" opacity="0.6" />
+</svg>

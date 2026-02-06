@@ -1,0 +1,7 @@
+<svg width="64" height="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M15,50 L49,50 L55,20 Q32,0 9,20 Z" fill="#8B4513" /> <!-- Body -->
+<circle cx="25" cy="25" r="5" fill="white"/><circle cx="27" cy="25" r="2" fill="black"/> <!-- Eye -->
+<circle cx="39" cy="25" r="5" fill="white"/><circle cx="37" cy="25" r="2" fill="black"/> <!-- Eye -->
+<rect x="20" y="50" width="10" height="10" fill="black" /> <!-- Foot -->
+<rect x="34" y="50" width="10" height="10" fill="black" /> <!-- Foot -->
+</svg>

@@ -1,0 +1,4 @@
+<svg width="64" height="128" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="0" width="54" height="30" fill="#00AA00" stroke="black" stroke-width="2"/> <!-- Pipe Top -->
+  <rect x="10" y="30" width="44" height="98" fill="#00AA00" stroke="black" stroke-width="2"/> <!-- Pipe Body -->
+</svg>

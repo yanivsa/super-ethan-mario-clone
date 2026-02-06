@@ -1,0 +1,21 @@
+<svg width="256" height="64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Frame 1 -->
+  <rect x="0" y="0" width="64" height="64" fill="#0000FF" opacity="0.8"/>
+  <rect x="20" y="10" width="24" height="24" fill="#FFCC99" />
+  <rect x="10" y="34" width="44" height="30" fill="#0000AA" />
+  
+  <!-- Frame 2 -->
+  <rect x="64" y="0" width="64" height="64" fill="#0000FF" opacity="0.9"/>
+  <rect x="84" y="8" width="24" height="24" fill="#FFCC99" />
+  <rect x="74" y="32" width="44" height="30" fill="#0000AA" />
+  
+  <!-- Frame 3 -->
+  <rect x="128" y="0" width="64" height="64" fill="#0000FF" opacity="1.0"/>
+  <rect x="148" y="10" width="24" height="24" fill="#FFCC99" />
+  <rect x="138" y="34" width="44" height="30" fill="#0000AA" />
+
+   <!-- Frame 4 -->
+  <rect x="192" y="0" width="64" height="64" fill="#0000FF" opacity="0.9"/>
+  <rect x="212" y="8" width="24" height="24" fill="#FFCC99" />
+  <rect x="202" y="32" width="44" height="30" fill="#0000AA" />
+</svg>

@@ -1,0 +1,6 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="64" height="64" fill="#8B4513" /> <!-- Brown soil -->
+  <rect x="0" y="0" width="64" height="15" fill="#32CD32" /> <!-- Green grass top -->
+  <rect x="5" y="5" width="5" height="5" fill="#228B22" />
+  <rect x="20" y="2" width="5" height="5" fill="#228B22" />
+</svg>

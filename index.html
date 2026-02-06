@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Super Ethan Clone</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <canvas id="gameCanvas" aria-label="Super Ethan game canvas"></canvas>
+
+  <div id="hud" class="hud hidden" aria-live="polite">
+    <span id="hudScore">SCORE 000000</span>
+    <span id="hudCoins">COINS x00</span>
+    <span id="hudWorld">WORLD 1-1</span>
+    <span id="hudTime">TIME 400</span>
+    <span id="hudLives">LIVES x3</span>
+  </div>
+
+  <div id="titleScreen" class="overlay">
+    <h1>SUPER ETHAN</h1>
+    <p>Closest-play clone built with HTML5 Canvas.</p>
+    <p>Move: A/D or Arrows | Jump: Space/Z | Run: Shift | Duck: S/Down</p>
+    <button id="startBtn" type="button">Start Game</button>
+  </div>
+
+  <div id="gameOverScreen" class="overlay hidden">
+    <h1>GAME OVER</h1>
+    <button id="retryBtn" type="button">Retry</button>
+  </div>
+
+  <div id="winScreen" class="overlay hidden">
+    <h1>YOU WIN</h1>
+    <p>Ethan reached the castle.</p>
+    <button id="againBtn" type="button">Play Again</button>
+  </div>
+
+  <div id="touchControls" class="touch-controls" aria-hidden="true">
+    <div class="left-pad">
+      <button data-touch="left" type="button">◀</button>
+      <button data-touch="right" type="button">▶</button>
+    </div>
+    <div class="right-pad">
+      <button data-touch="run" type="button">RUN</button>
+      <button data-touch="jump" type="button">JUMP</button>
+    </div>
+  </div>
+
+  <script src="src/game.js"></script>
+</body>
+</html>
