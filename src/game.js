@@ -9,19 +9,19 @@
   const PLAYER_SMALL = { w: 40, h: 58 };
   const PLAYER_BIG = { w: 40, h: 84 };
 
-  const GRAVITY = 1720;
-  const MAX_FALL = 920;
+  const GRAVITY = 1480;
+  const MAX_FALL = 840;
 
-  const WALK_SPEED = 240;
-  const RUN_SPEED = 330;
-  const ACCEL_GROUND = 2200;
-  const ACCEL_AIR = 1400;
-  const FRICTION = 2800;
+  const WALK_SPEED = 255;
+  const RUN_SPEED = 360;
+  const ACCEL_GROUND = 2300;
+  const ACCEL_AIR = 1650;
+  const FRICTION = 2500;
 
-  const JUMP_VELOCITY = 780;
-  const BOUNCE_VELOCITY = 430;
-  const COYOTE_TIME = 0.18;
-  const JUMP_BUFFER = 0.2;
+  const JUMP_VELOCITY = 900;
+  const BOUNCE_VELOCITY = 460;
+  const COYOTE_TIME = 0.28;
+  const JUMP_BUFFER = 0.3;
 
   const WORLD_TIME_START = 500;
   const RESPAWN_DELAY = 1.1;
@@ -29,6 +29,7 @@
   const VIEW_ASPECT = 16 / 9;
   const VERTICAL_VIEW_PADDING = 24;
   const CHECKPOINTS = [3, 72, 138, 202].map((tileX) => tileX * TILE);
+  const EASY_PIT_RANGES = [[30, 30], [49, 49], [87, 87], [142, 142], [174, 174], [198, 198]];
 
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
@@ -92,6 +93,7 @@
   };
 
   const assets = {};
+  const audio = { context: null };
 
   const state = {
     mode: "title",
@@ -127,6 +129,57 @@
 
   function overlap(a, b) {
     return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+  }
+
+  function ensureAudioContext() {
+    const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextCtor) {
+      return null;
+    }
+    if (!audio.context) {
+      audio.context = new AudioContextCtor();
+    }
+    return audio.context;
+  }
+
+  function unlockAudio() {
+    const context = ensureAudioContext();
+    if (!context) {
+      return;
+    }
+    if (context.state === "suspended") {
+      context.resume().catch(() => {});
+    }
+  }
+
+  function playCoinSound() {
+    const context = audio.context;
+    if (!context || context.state !== "running") {
+      return;
+    }
+
+    const now = context.currentTime;
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(0.13, now + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+    gain.connect(context.destination);
+
+    const oscMain = context.createOscillator();
+    oscMain.type = "triangle";
+    oscMain.frequency.setValueAtTime(1046, now);
+    oscMain.frequency.exponentialRampToValueAtTime(1568, now + 0.11);
+    oscMain.connect(gain);
+    oscMain.start(now);
+    oscMain.stop(now + 0.16);
+
+    const oscLayer = context.createOscillator();
+    oscLayer.type = "sine";
+    oscLayer.frequency.setValueAtTime(1318, now + 0.03);
+    oscLayer.frequency.exponentialRampToValueAtTime(1760, now + 0.13);
+    oscLayer.connect(gain);
+    oscLayer.start(now + 0.03);
+    oscLayer.stop(now + 0.16);
   }
 
   function parseHexColor(hex) {
@@ -307,24 +360,14 @@
       setTile(x, GROUND_ROW + 2, "dirt");
     }
 
-    const pitRanges = [
-      [30, 30], [49, 49], [87, 87], [142, 143], [174, 174], [198, 199]
-    ];
-
-    for (const [start, end] of pitRanges) {
-      for (let x = start; x <= end; x += 1) {
-        for (let y = GROUND_ROW; y <= GROUND_ROW + 2; y += 1) {
-          tiles[y][x] = null;
-        }
-      }
-    }
-
     function addQuestionLine(y, xStart, sequence) {
+      let gaveMushroom = false;
       for (let i = 0; i < sequence.length; i += 1) {
         const type = sequence[i];
         const x = xStart + i;
         if (type === "Q") {
-          setTile(x, y, "qblock", { used: false, content: i % 3 === 1 ? "mushroom" : "coin" });
+          setTile(x, y, "qblock", { used: false, content: gaveMushroom ? "coin" : "mushroom" });
+          gaveMushroom = true;
         } else if (type === "B") {
           setTile(x, y, "brick");
         }
@@ -341,7 +384,7 @@
     addQuestionLine(9, 182, ["B", "B", "Q", "B", "B"]);
 
     const stairBaseX = 210;
-    for (let step = 0; step < 5; step += 1) {
+    for (let step = 0; step < 3; step += 1) {
       for (let y = 0; y <= step; y += 1) {
         setTile(stairBaseX + step, GROUND_ROW - y, "hard");
       }
@@ -354,20 +397,13 @@
 
     addPipe(22, 2);
     addPipe(29, 2);
-    addPipe(37, 3);
-    addPipe(46, 3);
+    addPipe(37, 2);
+    addPipe(46, 2);
     addPipe(61, 2);
     addPipe(78, 2);
     addPipe(110, 2);
     addPipe(130, 2);
-    addPipe(170, 3);
-
-    for (const [start, end] of pitRanges) {
-      setTile(start - 1, GROUND_ROW - 1, "hard");
-      setTile(end + 1, GROUND_ROW - 1, "hard");
-    }
-    setTile(198, GROUND_ROW - 2, "hard");
-    setTile(199, GROUND_ROW - 2, "hard");
+    addPipe(170, 2);
 
     for (let x = 8; x < LEVEL_COLS; x += 14) {
       level.sceneryClouds.push({ x: x * TILE + (x % 2) * 80, y: 60 + (x % 3) * 34, w: TILE * 2.6, h: TILE * 1.3 });
@@ -390,6 +426,7 @@
   function collectCoin(x, y) {
     state.coins += 1;
     state.score += 100;
+    playCoinSound();
     if (state.coins % 50 === 0) {
       state.lives += 1;
       state.floating.push({ text: "חיים +1", x, y: y - 18, t: 0.9, color: "#d4ff8f" });
@@ -442,7 +479,7 @@
 
   function initialEnemyLayout() {
     const positions = [
-      [26, 10], [41, 10], [55, 10], [84, 10], [126, 10], [152, 10], [188, 10]
+      [55, 10], [126, 10], [188, 10]
     ];
     for (const [tx, ty] of positions) {
       spawnEnemy(tx * TILE + 6, ty * TILE);
@@ -450,15 +487,51 @@
   }
 
   function initialCoinsLayout() {
-    const coins = [
-      [12, 8], [13, 8], [14, 8], [40, 7], [41, 7], [60, 6], [61, 6],
-      [76, 8], [96, 8], [97, 8], [98, 8], [132, 7], [133, 7],
-      [146, 7], [147, 7], [157, 8], [171, 8], [180, 8], [181, 8], [182, 8],
-      [210, 6], [211, 6], [212, 6], [213, 6]
-    ];
+    const uniqueCoins = new Set();
 
-    for (const [tx, ty] of coins) {
-      spawnCoinItem(tx * TILE + 10, ty * TILE + 10);
+    function addCoin(tx, ty) {
+      if (!state.level || tx < 1 || tx >= LEVEL_COLS - 1 || ty < 1 || ty >= LEVEL_ROWS - 1) {
+        return;
+      }
+      const key = `${tx},${ty}`;
+      if (uniqueCoins.has(key)) {
+        return;
+      }
+      const coinRect = { x: tx * TILE + 10, y: ty * TILE + 10, w: 28, h: 28 };
+      const blockers = getVisibleSolidRects(state.level, coinRect.x, coinRect.y, coinRect.w, coinRect.h);
+      for (const blocker of blockers) {
+        if (overlap(coinRect, blocker)) {
+          return;
+        }
+      }
+      uniqueCoins.add(key);
+      spawnCoinItem(coinRect.x, coinRect.y);
+    }
+
+    for (let tx = 8; tx <= 222; tx += 4) {
+      addCoin(tx, tx % 12 === 0 ? 7 : 8);
+    }
+
+    for (let tx = 16; tx <= 216; tx += 10) {
+      addCoin(tx, 6);
+      addCoin(tx + 1, 6);
+    }
+
+    for (const [start, end] of EASY_PIT_RANGES) {
+      for (let tx = start - 1; tx <= end + 1; tx += 1) {
+        addCoin(tx, 7);
+      }
+    }
+
+    for (const pipe of state.level.pipes) {
+      const tx = Math.round(pipe.x / TILE);
+      const ty = Math.max(4, Math.round(pipe.y / TILE) - 1);
+      addCoin(tx, ty);
+      addCoin(tx + 1, ty);
+    }
+
+    for (let tx = 208; tx <= 215; tx += 1) {
+      addCoin(tx, tx % 2 === 0 ? 6 : 5);
     }
   }
 
@@ -707,6 +780,7 @@
 
   function setupInput() {
     window.addEventListener("keydown", (event) => {
+      unlockAudio();
       keySet(event.code, true);
       if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"].includes(event.code)) {
         event.preventDefault();
@@ -740,6 +814,7 @@
 
       btn.addEventListener("pointerdown", (e) => {
         e.preventDefault();
+        unlockAudio();
         press(true);
       });
       btn.addEventListener("pointerup", (e) => {
@@ -809,8 +884,8 @@
         p.coyote = 0;
       }
 
-      if (input.jumpReleased && p.vy < -220) {
-        p.vy *= 0.52;
+      if (input.jumpReleased && p.vy < -280) {
+        p.vy *= 0.62;
       }
     }
 
@@ -1307,12 +1382,17 @@
   }
 
   function wireUi() {
-    ui.startBtn.addEventListener("click", startGame);
+    ui.startBtn.addEventListener("click", () => {
+      unlockAudio();
+      startGame();
+    });
     ui.retryBtn.addEventListener("click", () => {
+      unlockAudio();
       ui.gameOver.classList.add("hidden");
       startGame();
     });
     ui.againBtn.addEventListener("click", () => {
+      unlockAudio();
       ui.win.classList.add("hidden");
       startGame();
     });
