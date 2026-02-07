@@ -74,6 +74,14 @@ body {
   text-shadow: 0 3px 0 #5b2f00;
 }
 
+.title-logo {
+  width: min(72vw, 420px);
+  max-height: 220px;
+  object-fit: contain;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
+}
+
 .overlay p {
   margin: 6px 0;
   max-width: 820px;

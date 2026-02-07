@@ -12,24 +12,58 @@
   const GRAVITY = 1480;
   const MAX_FALL = 840;
 
-  const WALK_SPEED = 255;
-  const RUN_SPEED = 360;
-  const ACCEL_GROUND = 2300;
-  const ACCEL_AIR = 1650;
-  const FRICTION = 2500;
+  const WALK_SPEED = 285;
+  const RUN_SPEED = 395;
+  const ACCEL_GROUND = 3200;
+  const ACCEL_AIR = 2200;
+  const FRICTION = 3300;
 
-  const JUMP_VELOCITY = 900;
+  const JUMP_VELOCITY = 950;
   const BOUNCE_VELOCITY = 460;
-  const COYOTE_TIME = 0.28;
-  const JUMP_BUFFER = 0.3;
+  const COYOTE_TIME = 0.32;
+  const JUMP_BUFFER = 0.34;
 
-  const WORLD_TIME_START = 500;
+  const START_LIVES = 3;
   const RESPAWN_DELAY = 1.1;
   const DEATH_HOP = 660;
   const VIEW_ASPECT = 16 / 9;
   const VERTICAL_VIEW_PADDING = 24;
   const CHECKPOINTS = [3, 72, 138, 202].map((tileX) => tileX * TILE);
-  const EASY_PIT_RANGES = [[30, 30], [49, 49], [87, 87], [142, 142], [174, 174], [198, 198]];
+  const PIPE_TILE_COLUMNS = [22, 29, 37, 46, 61, 78, 110, 130, 170];
+  const STAGE_CONFIGS = [
+    {
+      world: "1-1",
+      time: 500,
+      pitRanges: [[30, 30], [49, 49], [87, 87], [142, 142], [174, 174], [198, 198]],
+      enemyTiles: [[55, 10], [126, 10], [188, 10]],
+      enemySpeed: 42,
+      pipeHeights: [2, 2, 2, 2, 2, 2, 2, 2, 2]
+    },
+    {
+      world: "1-2",
+      time: 420,
+      pitRanges: [[28, 29], [47, 48], [84, 85], [140, 141], [172, 173], [196, 197]],
+      enemyTiles: [[50, 10], [74, 10], [124, 10], [156, 10], [186, 10]],
+      enemySpeed: 50,
+      pipeHeights: [2, 2, 3, 2, 3, 2, 3, 2, 2]
+    },
+    {
+      world: "1-3",
+      time: 340,
+      pitRanges: [[26, 28], [45, 47], [81, 83], [136, 138], [168, 170], [193, 195], [207, 208]],
+      enemyTiles: [[42, 10], [68, 10], [92, 10], [118, 10], [146, 10], [176, 10], [204, 10]],
+      enemySpeed: 58,
+      pipeHeights: [2, 3, 3, 2, 3, 3, 3, 2, 3]
+    },
+    {
+      world: "1-4",
+      time: 280,
+      pitRanges: [[24, 27], [42, 45], [78, 81], [132, 135], [162, 165], [188, 191], [206, 209]],
+      enemyTiles: [[36, 10], [58, 10], [84, 10], [112, 10], [140, 10], [166, 10], [194, 10], [214, 10]],
+      enemySpeed: 66,
+      pipeHeights: [3, 3, 3, 2, 3, 3, 3, 3, 3]
+    }
+  ];
 
   const canvas = document.getElementById("gameCanvas");
   const ctx = canvas.getContext("2d");
@@ -64,6 +98,23 @@
     jumpReleased: false
   };
 
+  function resetInputState() {
+    input.left = false;
+    input.right = false;
+    input.down = false;
+    input.run = false;
+    input.jumpHeld = false;
+    input.jumpPressed = false;
+    input.jumpReleased = false;
+  }
+
+  function isGameplayInputLocked() {
+    if (state.mode !== "playing") {
+      return true;
+    }
+    return Boolean(state.player && state.player.controlLocked);
+  }
+
   const assetPath = {
     player_idle: "assets/player/idle.svg",
     player_run_1: "assets/player/run_1.svg",
@@ -73,6 +124,10 @@
     player_duck: "assets/player/duck.svg",
     player_die: "assets/player/die.svg",
     player_skid: "assets/player/skid.svg",
+    player_sheet: "assets/ethan_sheet.png",
+    tiles_sheet: "assets/tileset_sheet.png",
+    enemies_items_sheet: "assets/enemies_items_sheet.png",
+    scenery_sheet: "assets/scenery_sheet.png",
     tile_ground: "assets/tiles/ground.svg",
     tile_dirt: "assets/tiles/dirt.svg",
     tile_brick: "assets/tiles/brick.svg",
@@ -84,6 +139,7 @@
     coin: "assets/items/coin.svg",
     mushroom: "assets/items/mushroom.svg",
     star: "assets/items/star.svg",
+    sky_hq: "assets/sky.png",
     sky: "assets/scenery/bg_sky.svg",
     bush: "assets/scenery/bush_1.svg",
     cloud: "assets/scenery/cloud_1.svg",
@@ -97,11 +153,11 @@
 
   const state = {
     mode: "title",
-    world: "1-1",
+    world: STAGE_CONFIGS[0].world,
     score: 0,
     coins: 0,
-    lives: 5,
-    timeLeft: WORLD_TIME_START,
+    lives: START_LIVES,
+    timeLeft: STAGE_CONFIGS[0].time,
     secondTick: 0,
     cameraX: 0,
     flash: 0,
@@ -116,7 +172,9 @@
     castleX: 0,
     respawnTimer: 0,
     checkpointX: 3 * TILE,
-    nextCheckpointIdx: 1
+    nextCheckpointIdx: 1,
+    stageIndex: 0,
+    stageConfig: STAGE_CONFIGS[0]
   };
 
   function clamp(v, min, max) {
@@ -294,6 +352,86 @@
     return cvs;
   }
 
+  function cropSprite(image, rect, options = {}) {
+    const { chroma = false, tolerance = 18 } = options;
+    const out = document.createElement("canvas");
+    out.width = rect.w;
+    out.height = rect.h;
+    const outCtx = out.getContext("2d");
+    outCtx.imageSmoothingEnabled = false;
+    outCtx.drawImage(image, rect.x, rect.y, rect.w, rect.h, 0, 0, rect.w, rect.h);
+    return prepareSprite(out, { chroma, tolerance });
+  }
+
+  function applyHighQualitySheetOverrides() {
+    if (assets.sky_hq) {
+      assets.sky = assets.sky_hq;
+    }
+
+    if (assets.player_sheet) {
+      const playerRects = {
+        player_run_1: { x: 36, y: 65, w: 129, h: 208 },
+        player_run_2: { x: 188, y: 65, w: 122, h: 208 },
+        player_run_3: { x: 334, y: 65, w: 124, h: 207 },
+        player_skid: { x: 478, y: 65, w: 125, h: 208 },
+        player_jump: { x: 176, y: 310, w: 138, h: 245 },
+        player_idle: { x: 36, y: 338, w: 103, h: 257 },
+        player_duck: { x: 318, y: 406, w: 127, h: 189 }
+      };
+
+      for (const [key, rect] of Object.entries(playerRects)) {
+        assets[key] = cropSprite(assets.player_sheet, rect, { chroma: true, tolerance: 26 });
+      }
+    }
+
+    if (assets.tiles_sheet) {
+      const tileRects = {
+        tile_ground: { x: 32, y: 44, w: 210, h: 172 },
+        tile_dirt: { x: 247, y: 63, w: 154, h: 153 },
+        tile_brick: { x: 415, y: 63, w: 167, h: 153 },
+        tile_qblock: { x: 245, y: 232, w: 160, h: 175 },
+        tile_empty: { x: 415, y: 232, w: 167, h: 176 },
+        tile_hard: { x: 56, y: 433, w: 159, h: 159 },
+        pipe_top: { x: 240, y: 427, w: 170, h: 178 },
+        pipe_body: { x: 410, y: 427, w: 170, h: 178 }
+      };
+
+      for (const [key, rect] of Object.entries(tileRects)) {
+        assets[key] = cropSprite(assets.tiles_sheet, rect, { chroma: false });
+      }
+    }
+
+    if (assets.enemies_items_sheet) {
+      const entityRects = {
+        goomba: { x: 60, y: 65, w: 151, h: 170 },
+        coin: { x: 456, y: 252, w: 116, h: 136 },
+        mushroom: { x: 60, y: 422, w: 150, h: 147 },
+        star: { x: 255, y: 417, w: 146, h: 150 },
+        heart: { x: 445, y: 437, w: 135, h: 120 }
+      };
+
+      for (const [key, rect] of Object.entries(entityRects)) {
+        assets[key] = cropSprite(assets.enemies_items_sheet, rect, { chroma: true, tolerance: 24 });
+      }
+
+      if (assets.goomba) {
+        assets.goomba_squish = assets.goomba;
+      }
+    }
+
+    if (assets.scenery_sheet) {
+      const sceneryRects = {
+        cloud: { x: 249, y: 36, w: 354, h: 196 },
+        bush: { x: 27, y: 213, w: 272, h: 204 },
+        hill: { x: 26, y: 485, w: 588, h: 138 }
+      };
+
+      for (const [key, rect] of Object.entries(sceneryRects)) {
+        assets[key] = cropSprite(assets.scenery_sheet, rect, { chroma: true, tolerance: 20 });
+      }
+    }
+  }
+
   function loadImage(path) {
     return new Promise((resolve, reject) => {
       const image = new Image();
@@ -308,7 +446,12 @@
     const loadPromises = entries.map(async ([key, path]) => {
       try {
         const image = await loadImage(path);
-        const isTile = key.startsWith("tile_") || key === "sky" || key === "pipe_top" || key === "pipe_body";
+        const isTile = key.startsWith("tile_")
+          || key === "sky"
+          || key === "sky_hq"
+          || key === "pipe_top"
+          || key === "pipe_body"
+          || key.endsWith("_sheet");
         const isDynamicSprite = !isTile;
         assets[key] = prepareSprite(image, {
           chroma: isDynamicSprite,
@@ -322,13 +465,14 @@
     });
 
     await Promise.all(loadPromises);
+    applyHighQualitySheetOverrides();
   }
 
   function makeEmptyGrid(cols, rows) {
     return Array.from({ length: rows }, () => Array(cols).fill(null));
   }
 
-  function createLevel() {
+  function createLevel(stage = STAGE_CONFIGS[0]) {
     const tiles = makeEmptyGrid(LEVEL_COLS, LEVEL_ROWS);
 
     const level = {
@@ -395,15 +539,21 @@
       level.pipes.push({ x: tileX * TILE, y: topTileY * TILE, w: TILE * 2, h: TILE * height, heightTiles: height });
     }
 
-    addPipe(22, 2);
-    addPipe(29, 2);
-    addPipe(37, 2);
-    addPipe(46, 2);
-    addPipe(61, 2);
-    addPipe(78, 2);
-    addPipe(110, 2);
-    addPipe(130, 2);
-    addPipe(170, 2);
+    const pipeHeights = (stage && stage.pipeHeights) || [];
+    for (let i = 0; i < PIPE_TILE_COLUMNS.length; i += 1) {
+      addPipe(PIPE_TILE_COLUMNS[i], pipeHeights[i] || 2);
+    }
+
+    const pitRanges = (stage && stage.pitRanges) || [];
+    for (const [start, end] of pitRanges) {
+      for (let x = start; x <= end; x += 1) {
+        for (let y = GROUND_ROW; y <= GROUND_ROW + 2; y += 1) {
+          if (x >= 0 && x < LEVEL_COLS && y >= 0 && y < LEVEL_ROWS) {
+            level.tiles[y][x] = null;
+          }
+        }
+      }
+    }
 
     for (let x = 8; x < LEVEL_COLS; x += 14) {
       level.sceneryClouds.push({ x: x * TILE + (x % 2) * 80, y: 60 + (x % 3) * 34, w: TILE * 2.6, h: TILE * 1.3 });
@@ -462,27 +612,28 @@
     });
   }
 
-  function spawnEnemy(x, y) {
+  function spawnEnemy(x, y, speed = 42) {
     state.enemies.push({
       kind: "goomba",
       x,
       y,
       w: 36,
       h: 36,
-      vx: -42,
+      vx: -speed,
       vy: 0,
+      dir: -1,
+      speed,
       dead: false,
       deadTimer: 0,
       grounded: false
     });
   }
 
-  function initialEnemyLayout() {
-    const positions = [
-      [55, 10], [126, 10], [188, 10]
-    ];
+  function initialEnemyLayout(stage = state.stageConfig) {
+    const positions = (stage && stage.enemyTiles) || [[55, 10], [126, 10], [188, 10]];
+    const speed = Math.max(36, (stage && stage.enemySpeed) || 42);
     for (const [tx, ty] of positions) {
-      spawnEnemy(tx * TILE + 6, ty * TILE);
+      spawnEnemy(tx * TILE + 6, ty * TILE, speed);
     }
   }
 
@@ -517,7 +668,8 @@
       addCoin(tx + 1, 6);
     }
 
-    for (const [start, end] of EASY_PIT_RANGES) {
+    const pitRanges = (state.stageConfig && state.stageConfig.pitRanges) || [];
+    for (const [start, end] of pitRanges) {
       for (let tx = start - 1; tx <= end + 1; tx += 1) {
         addCoin(tx, 7);
       }
@@ -551,6 +703,7 @@
       hurtTimer: 0,
       big: false,
       controlLocked: false,
+      jumpCount: 0,
       animT: 0,
       dead: false
     };
@@ -649,6 +802,7 @@
 
     entity.onGround = false;
 
+    const prevY = entity.y;
     entity.y += entity.vy * dt;
     solids = getVisibleSolidRects(level, entity.x, entity.y, entity.w, entity.h);
 
@@ -656,11 +810,13 @@
       if (!overlap(entity, s)) {
         continue;
       }
-      if (entity.vy > 0) {
+      const wasAbove = prevY + entity.h <= s.y + 1;
+      const wasBelow = prevY >= s.y + s.h - 1;
+      if (entity.vy > 0 || (entity.vy === 0 && wasAbove)) {
         entity.y = s.y - entity.h;
         entity.vy = 0;
         entity.onGround = true;
-      } else if (entity.vy < 0) {
+      } else if (entity.vy < 0 || (entity.vy === 0 && wasBelow)) {
         entity.y = s.y + s.h;
         entity.vy = 0;
         if (onHeadHit) {
@@ -690,6 +846,7 @@
     p.controlLocked = true;
     p.vx = 0;
     p.vy = -DEATH_HOP;
+    resetInputState();
     state.respawnTimer = RESPAWN_DELAY;
   }
 
@@ -708,30 +865,56 @@
     state.floating.push({ text: "כוח על!", x: p.x + 20, y: p.y - 10, t: 1.0, color: "#c5ff85" });
   }
 
-  function startGame() {
-    state.mode = "playing";
-    state.score = 0;
-    state.coins = 0;
-    state.lives = 5;
-    state.timeLeft = WORLD_TIME_START;
+  function loadStage(stageIndex) {
+    const safeIndex = clamp(stageIndex, 0, STAGE_CONFIGS.length - 1);
+    const stage = STAGE_CONFIGS[safeIndex];
+
+    state.stageIndex = safeIndex;
+    state.stageConfig = stage;
+    state.world = stage.world;
+    state.timeLeft = stage.time;
     state.secondTick = 0;
     state.cameraX = 0;
     state.flash = 0;
     state.flagCaptured = false;
     state.checkpointX = CHECKPOINTS[0];
     state.nextCheckpointIdx = 1;
-    state.level = createLevel();
+    state.level = createLevel(stage);
     state.player = createPlayer(state.checkpointX);
     state.enemies = [];
     state.items = [];
     state.floating = [];
     state.particles = [];
-
-    initialEnemyLayout();
-    initialCoinsLayout();
-
     state.flagPoleX = 224 * TILE;
     state.castleX = 230 * TILE;
+
+    initialEnemyLayout(stage);
+    initialCoinsLayout();
+  }
+
+  function advanceToNextStage() {
+    if (state.stageIndex >= STAGE_CONFIGS.length - 1) {
+      state.mode = "win";
+      ui.win.classList.remove("hidden");
+      return;
+    }
+
+    const timeBonus = Math.max(0, state.timeLeft) * 5;
+    state.score += 2500 + timeBonus;
+    loadStage(state.stageIndex + 1);
+    state.mode = "playing";
+    state.player.invulnerable = 1.2;
+    state.floating.push({ text: `שלב ${state.world}`, x: state.player.x + 70, y: state.player.y - 18, t: 1.2, color: "#fff5a8" });
+  }
+
+  function startGame() {
+    state.mode = "playing";
+    resetInputState();
+    state.score = 0;
+    state.coins = 0;
+    state.lives = START_LIVES;
+    loadStage(0);
+    state.mode = "playing";
 
     ui.title.classList.add("hidden");
     ui.gameOver.classList.add("hidden");
@@ -743,10 +926,12 @@
     if (state.lives <= 0) {
       state.mode = "gameover";
       ui.gameOver.classList.remove("hidden");
+      resetInputState();
       return;
     }
 
     state.mode = "playing";
+    resetInputState();
     state.timeLeft = Math.max(90, state.timeLeft);
     state.player = createPlayer(state.checkpointX);
     state.player.invulnerable = 1.8;
@@ -754,6 +939,10 @@
   }
 
   function keySet(code, down) {
+    if (down && isGameplayInputLocked()) {
+      return;
+    }
+
     if (code === "ArrowLeft" || code === "KeyA") {
       input.left = down;
     }
@@ -784,6 +973,7 @@
       keySet(event.code, true);
       if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"].includes(event.code)) {
         event.preventDefault();
+        event.stopPropagation();
       }
     });
 
@@ -795,6 +985,9 @@
     buttons.forEach((btn) => {
       const action = btn.dataset.touch;
       const press = (on) => {
+        if (on && isGameplayInputLocked()) {
+          return;
+        }
         if (action === "left") {
           input.left = on;
         } else if (action === "right") {
@@ -851,10 +1044,12 @@
 
       if (dir !== 0) {
         p.facing = dir;
+        const turning = p.onGround && Math.sign(p.vx) !== 0 && Math.sign(p.vx) !== dir;
+        const steerAccel = turning ? accel * 1.45 : accel;
         if (p.vx < target) {
-          p.vx = Math.min(target, p.vx + accel * dt);
+          p.vx = Math.min(target, p.vx + steerAccel * dt);
         } else if (p.vx > target) {
-          p.vx = Math.max(target, p.vx - accel * dt);
+          p.vx = Math.max(target, p.vx - steerAccel * dt);
         }
       } else {
         const frictionDelta = FRICTION * dt;
@@ -867,6 +1062,7 @@
 
       if (p.onGround) {
         p.coyote = COYOTE_TIME;
+        p.jumpCount = 0;
       } else {
         p.coyote = Math.max(0, p.coyote - dt);
       }
@@ -877,11 +1073,14 @@
         p.jumpBuffer = Math.max(0, p.jumpBuffer - dt);
       }
 
-      if (p.jumpBuffer > 0 && (p.onGround || p.coyote > 0)) {
-        p.vy = -JUMP_VELOCITY;
+      const canGroundJump = p.onGround || p.coyote > 0;
+      const canDoubleJump = !canGroundJump && p.jumpCount === 1;
+      if (p.jumpBuffer > 0 && (canGroundJump || canDoubleJump)) {
+        p.vy = canDoubleJump ? -JUMP_VELOCITY * 0.96 : -JUMP_VELOCITY;
         p.onGround = false;
         p.jumpBuffer = 0;
         p.coyote = 0;
+        p.jumpCount = Math.min(2, p.jumpCount + 1);
       }
 
       if (input.jumpReleased && p.vy < -280) {
@@ -905,8 +1104,7 @@
         state.floating.push({ text: "דגל +5000", x: p.x, y: p.y - 20, t: 1.2, color: "#fff5a8" });
       }
     } else if (p.x > state.castleX + TILE * 1.5 && state.mode === "playing") {
-      state.mode = "win";
-      ui.win.classList.remove("hidden");
+      advanceToNextStage();
     }
 
     if (p.x < 0) {
@@ -929,19 +1127,23 @@
   }
 
   function enemySupportCheck(enemy) {
+    const dir = Math.sign(enemy.vx || enemy.dir || -1) || -1;
     const feetY = enemy.y + enemy.h + 2;
-    const checkX = enemy.vx >= 0 ? enemy.x + enemy.w + 4 : enemy.x - 4;
-    const probe = {
-      x: checkX,
-      y: feetY,
-      w: 2,
-      h: 2
-    };
+    const frontEdgeX = dir > 0 ? enemy.x + enemy.w - 2 : enemy.x - 2;
+    const probeOffsets = [dir * 4, dir * 10];
 
-    const solids = getVisibleSolidRects(state.level, probe.x, probe.y, probe.w, probe.h);
-    for (const s of solids) {
-      if (overlap(probe, s)) {
-        return true;
+    for (const offset of probeOffsets) {
+      const probe = {
+        x: frontEdgeX + offset,
+        y: feetY,
+        w: 4,
+        h: 4
+      };
+      const solids = getVisibleSolidRects(state.level, probe.x, probe.y, probe.w, probe.h);
+      for (const s of solids) {
+        if (overlap(probe, s)) {
+          return true;
+        }
       }
     }
     return false;
@@ -956,19 +1158,32 @@
         continue;
       }
 
+      const prevVx = enemy.vx;
+      const speed = enemy.speed || 42;
       enemy.vy = clamp(enemy.vy + GRAVITY * dt, -900, MAX_FALL);
       moveWithCollisions(enemy, dt, null);
 
-      if (enemy.vx === 0) {
-        enemy.vx = (Math.random() > 0.5 ? 1 : -1) * 42;
+      if (Math.abs(enemy.vx) < 1 && enemy.onGround) {
+        const lastDir = Math.sign(prevVx) || enemy.dir || -1;
+        enemy.dir = -lastDir;
+        enemy.vx = enemy.dir * speed;
       }
 
       if (enemy.onGround && !enemySupportCheck(enemy)) {
-        enemy.vx *= -1;
+        enemy.dir = -(Math.sign(enemy.vx) || enemy.dir || 1);
+        enemy.vx = enemy.dir * speed;
       }
 
-      if (enemy.x < 0 || enemy.x > state.level.width - enemy.w) {
-        enemy.vx *= -1;
+      if (enemy.x < 0) {
+        enemy.x = 0;
+        enemy.dir = 1;
+        enemy.vx = speed;
+      } else if (enemy.x > state.level.width - enemy.w) {
+        enemy.x = state.level.width - enemy.w;
+        enemy.dir = -1;
+        enemy.vx = -speed;
+      } else if (Math.abs(enemy.vx) >= 1) {
+        enemy.dir = Math.sign(enemy.vx);
       }
 
       if (overlap(p, enemy) && !p.dead && state.mode === "playing") {
@@ -1153,13 +1368,19 @@
   }
 
   function drawBackground(viewW, viewH, offsetY) {
-    const sky = assets.sky;
+    const sky = assets.sky_hq || assets.sky;
     if (sky) {
-      const sw = 64;
-      const sh = 64;
-      for (let x = -((state.cameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
-        for (let y = 0; y < viewH + sh; y += sh) {
-          ctx.drawImage(sky, x, y, sw, sh);
+      if (sky.width >= 256 && sky.height >= 256) {
+        const drift = ((state.cameraX * 0.12) % viewW);
+        ctx.drawImage(sky, -drift, 0, viewW, viewH);
+        ctx.drawImage(sky, viewW - drift, 0, viewW, viewH);
+      } else {
+        const sw = 64;
+        const sh = 64;
+        for (let x = -((state.cameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
+          for (let y = 0; y < viewH + sh; y += sh) {
+            ctx.drawImage(sky, x, y, sw, sh);
+          }
         }
       }
     } else {
@@ -1169,10 +1390,18 @@
 
     const cloudImg = assets.cloud;
     const bushImg = assets.bush;
+    const hillImg = assets.hill || null;
 
     for (const cloud of state.level.sceneryClouds) {
       const x = cloud.x - state.cameraX * 0.45;
       drawImageOrFallback(cloudImg, x, cloud.y + offsetY, cloud.w, cloud.h, "rgba(255,255,255,0.8)");
+    }
+
+    if (hillImg) {
+      for (let x = -220; x < viewW + 220; x += 290) {
+        const hillX = x - (state.cameraX * 0.22 % 290);
+        drawImageOrFallback(hillImg, hillX, (GROUND_ROW * TILE - 112) + offsetY, 290, 96, "#66a64b");
+      }
     }
 
     for (const bush of state.level.sceneryBushes) {
@@ -1267,7 +1496,7 @@
 
     let image = assets.player_idle;
     const speed = Math.abs(p.vx);
-    const skidding = p.onGround && ((input.left && p.vx > 40) || (input.right && p.vx < -40));
+    const skidding = !p.controlLocked && p.onGround && ((input.left && p.vx > 40) || (input.right && p.vx < -40));
 
     if (p.dead) {
       image = assets.player_die;
@@ -1406,12 +1635,8 @@
     setupInput();
 
     await loadAssets();
-    state.level = createLevel();
-    state.player = createPlayer();
-    initialEnemyLayout();
-    initialCoinsLayout();
-    state.flagPoleX = 224 * TILE;
-    state.castleX = 230 * TILE;
+    loadStage(0);
+    state.mode = "title";
 
     hud.root.classList.add("hidden");
     requestAnimationFrame(loop);

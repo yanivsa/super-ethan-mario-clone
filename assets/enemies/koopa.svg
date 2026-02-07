@@ -1,0 +1,6 @@
+<svg width="64" height="80" xmlns="http://www.w3.org/2000/svg">
+<rect x="15" y="40" width="34" height="40" fill="green" rx="10" /> <!-- Shell -->
+<circle cx="32" cy="20" r="15" fill="yellow" /> <!-- Head -->
+<rect x="15" y="70" width="10" height="10" fill="orange" /> <!-- Foot -->
+<rect x="39" y="70" width="10" height="10" fill="orange" /> <!-- Foot -->
+</svg>
