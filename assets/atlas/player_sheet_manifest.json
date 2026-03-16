@@ -1,0 +1,90 @@
+{
+  "sheet": "assets/ethan_sheet.png",
+  "defaults": {
+    "chroma": true,
+    "tolerance": 18
+  },
+  "frames": {
+    "player_idle": {
+      "x": 36,
+      "y": 338,
+      "w": 103,
+      "h": 257,
+      "pivotX": 52,
+      "pivotY": 246,
+      "feetLockY": 246,
+      "fallback": "player_idle"
+    },
+    "player_run_1": {
+      "x": 36,
+      "y": 65,
+      "w": 129,
+      "h": 208,
+      "pivotX": 63,
+      "pivotY": 198,
+      "feetLockY": 198,
+      "fallback": "player_run_1"
+    },
+    "player_run_2": {
+      "x": 188,
+      "y": 65,
+      "w": 122,
+      "h": 208,
+      "pivotX": 60,
+      "pivotY": 198,
+      "feetLockY": 198,
+      "fallback": "player_run_2"
+    },
+    "player_run_3": {
+      "x": 334,
+      "y": 65,
+      "w": 124,
+      "h": 207,
+      "pivotX": 61,
+      "pivotY": 197,
+      "feetLockY": 197,
+      "fallback": "player_run_3"
+    },
+    "player_skid": {
+      "x": 478,
+      "y": 65,
+      "w": 125,
+      "h": 208,
+      "pivotX": 61,
+      "pivotY": 198,
+      "feetLockY": 198,
+      "fallback": "player_skid"
+    },
+    "player_jump": {
+      "x": 176,
+      "y": 310,
+      "w": 138,
+      "h": 245,
+      "pivotX": 68,
+      "pivotY": 232,
+      "feetLockY": 232,
+      "fallback": "player_jump"
+    },
+    "player_duck": {
+      "x": 318,
+      "y": 406,
+      "w": 127,
+      "h": 189,
+      "pivotX": 62,
+      "pivotY": 181,
+      "feetLockY": 181,
+      "fallback": "player_duck"
+    }
+  },
+  "aliases": {
+    "player_jump_rise": "player_jump",
+    "player_jump_apex": "player_jump",
+    "player_jump_fall": "player_jump",
+    "player_land": "player_jump",
+    "player_run_start": "player_run_1",
+    "player_run_stop": "player_skid"
+  },
+  "capabilities": {
+    "player_win": false
+  }
+}

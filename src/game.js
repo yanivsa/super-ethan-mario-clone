@@ -8,6 +8,8 @@
 
   const PLAYER_SMALL = { w: 40, h: 58 };
   const PLAYER_BIG = { w: 40, h: 84 };
+  const GOOMBA_SIZE = 44;
+  const MUSHROOM_SIZE = 42;
 
   const GRAVITY = 1480;
   const MAX_FALL = 840;
@@ -28,6 +30,17 @@
   const DEATH_HOP = 660;
   const VIEW_ASPECT = 16 / 9;
   const VERTICAL_VIEW_PADDING = 24;
+  const MAX_RENDER_RATIO = 3;
+  const PLAYER_FRAME_KEYS = [
+    "player_idle",
+    "player_run_1",
+    "player_run_2",
+    "player_run_3",
+    "player_jump",
+    "player_duck",
+    "player_die",
+    "player_skid"
+  ];
   const CHECKPOINTS = [3, 72, 138, 202].map((tileX) => tileX * TILE);
   const PIPE_TILE_COLUMNS = [22, 29, 37, 46, 61, 78, 110, 130, 170];
   const STAGE_CONFIGS = [
@@ -37,7 +50,17 @@
       pitRanges: [[30, 30], [49, 49], [87, 87], [142, 142], [174, 174], [198, 198]],
       enemyTiles: [[55, 10], [126, 10], [188, 10]],
       enemySpeed: 42,
-      pipeHeights: [2, 2, 2, 2, 2, 2, 2, 2, 2]
+      pipeHeights: [2, 2, 2, 2, 2, 2, 2, 2, 2],
+      theme: {
+        skyTop: "#9cdeff",
+        skyMid: "#67b9ff",
+        skyBottom: "#2767c3",
+        haze: "#fef4c7",
+        bannerAccent: "#ffd25b",
+        bannerGlow: "#ff9340",
+        hillTint: "rgba(130, 212, 113, 0.32)",
+        bushTint: "rgba(59, 183, 117, 0.16)"
+      }
     },
     {
       world: "1-2",
@@ -45,7 +68,17 @@
       pitRanges: [[28, 29], [47, 48], [84, 85], [140, 141], [172, 173], [196, 197]],
       enemyTiles: [[50, 10], [74, 10], [124, 10], [156, 10], [186, 10]],
       enemySpeed: 50,
-      pipeHeights: [2, 2, 3, 2, 3, 2, 3, 2, 2]
+      pipeHeights: [2, 2, 3, 2, 3, 2, 3, 2, 2],
+      theme: {
+        skyTop: "#9ff1ff",
+        skyMid: "#46c6f8",
+        skyBottom: "#1767a2",
+        haze: "#fff0bf",
+        bannerAccent: "#61e4ff",
+        bannerGlow: "#1dc4ff",
+        hillTint: "rgba(162, 220, 118, 0.28)",
+        bushTint: "rgba(76, 190, 123, 0.18)"
+      }
     },
     {
       world: "1-3",
@@ -53,7 +86,17 @@
       pitRanges: [[26, 28], [45, 47], [81, 83], [136, 138], [168, 170], [193, 195], [207, 208]],
       enemyTiles: [[42, 10], [68, 10], [92, 10], [118, 10], [146, 10], [176, 10], [204, 10]],
       enemySpeed: 58,
-      pipeHeights: [2, 3, 3, 2, 3, 3, 3, 2, 3]
+      pipeHeights: [2, 3, 3, 2, 3, 3, 3, 2, 3],
+      theme: {
+        skyTop: "#ffcc97",
+        skyMid: "#ff8f63",
+        skyBottom: "#7a3a8d",
+        haze: "#ffe0a3",
+        bannerAccent: "#ffbf5a",
+        bannerGlow: "#ff6e5d",
+        hillTint: "rgba(255, 188, 109, 0.18)",
+        bushTint: "rgba(158, 205, 114, 0.16)"
+      }
     },
     {
       world: "1-4",
@@ -61,13 +104,43 @@
       pitRanges: [[24, 27], [42, 45], [78, 81], [132, 135], [162, 165], [188, 191], [206, 209]],
       enemyTiles: [[36, 10], [58, 10], [84, 10], [112, 10], [140, 10], [166, 10], [194, 10], [214, 10]],
       enemySpeed: 66,
-      pipeHeights: [3, 3, 3, 2, 3, 3, 3, 3, 3]
+      pipeHeights: [3, 3, 3, 2, 3, 3, 3, 3, 3],
+      theme: {
+        skyTop: "#1d3163",
+        skyMid: "#274b91",
+        skyBottom: "#0f1a34",
+        haze: "#7ed5ff",
+        bannerAccent: "#8ce7ff",
+        bannerGlow: "#3ac6ff",
+        hillTint: "rgba(70, 112, 184, 0.16)",
+        bushTint: "rgba(49, 113, 121, 0.14)"
+      }
     }
   ];
 
   const canvas = document.getElementById("gameCanvas");
+  function showBootError(title, message) {
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:grid;place-items:center;padding:24px;background:#0d1b33;color:#f8fbff;font-family:Heebo,Rubik,sans-serif;text-align:center">
+        <div style="max-width:560px;padding:28px;border-radius:24px;background:rgba(7,17,34,0.92);border:1px solid rgba(255,255,255,0.12)">
+          <h1 style="margin:0 0 12px;font-size:32px">${title}</h1>
+          <p style="margin:0;color:rgba(229,243,255,0.86);line-height:1.6">${message}</p>
+        </div>
+      </div>`;
+  }
+
+  if (!canvas) {
+    showBootError("Canvas Error", "The game canvas element is missing from index.html.");
+    return;
+  }
+
   const ctx = canvas.getContext("2d");
-  ctx.imageSmoothingEnabled = false;
+  if (!ctx) {
+    showBootError("Canvas Error", "This browser cannot create a 2D canvas context.");
+    return;
+  }
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
 
   const hud = {
     root: document.getElementById("hud"),
@@ -124,6 +197,7 @@
     player_duck: "assets/player/duck.svg",
     player_die: "assets/player/die.svg",
     player_skid: "assets/player/skid.svg",
+    player_win: "assets/player/win.svg",
     player_sheet: "assets/ethan_sheet.png",
     tiles_sheet: "assets/tileset_sheet.png",
     enemies_items_sheet: "assets/enemies_items_sheet.png",
@@ -142,13 +216,46 @@
     sky_hq: "assets/sky.png",
     sky: "assets/scenery/bg_sky.svg",
     bush: "assets/scenery/bush_1.svg",
+    bush_alt: "assets/scenery/bush_2.svg",
     cloud: "assets/scenery/cloud_1.svg",
+    cloud_alt: "assets/scenery/cloud_2.svg",
+    hill_alt: "assets/scenery/hill_1.svg",
     pipe_top: "assets/scenery/pipe_top.svg",
     pipe_body: "assets/scenery/pipe_body.svg",
     heart: "assets/ui/heart.svg"
   };
 
+  const manifestPath = {
+    player_sheet: "assets/atlas/player_sheet_manifest.json"
+  };
+  const DEFAULT_PLAYER_SHEET_METADATA = {
+    frames: {
+      player_idle: { x: 36, y: 338, w: 103, h: 257, fallback: "player_idle" },
+      player_run_1: { x: 36, y: 65, w: 129, h: 208, fallback: "player_run_1" },
+      player_run_2: { x: 188, y: 65, w: 122, h: 208, fallback: "player_run_2" },
+      player_run_3: { x: 334, y: 65, w: 124, h: 207, fallback: "player_run_3" },
+      player_skid: { x: 478, y: 65, w: 125, h: 208, fallback: "player_skid" },
+      player_jump: { x: 176, y: 310, w: 138, h: 245, fallback: "player_jump" },
+      player_duck: { x: 318, y: 406, w: 127, h: 189, fallback: "player_duck" }
+    },
+    aliases: {
+      player_jump_rise: "player_jump",
+      player_jump_apex: "player_jump",
+      player_jump_fall: "player_jump",
+      player_land: "player_jump",
+      player_run_start: "player_run_1",
+      player_run_stop: "player_skid"
+    },
+    capabilities: {
+      player_win: false
+    }
+  };
+
   const assets = {};
+  const manifests = {};
+  const runtimeCapabilities = {
+    playerWin: false
+  };
   const audio = { context: null };
 
   const state = {
@@ -174,15 +281,205 @@
     checkpointX: 3 * TILE,
     nextCheckpointIdx: 1,
     stageIndex: 0,
-    stageConfig: STAGE_CONFIGS[0]
+    stageConfig: STAGE_CONFIGS[0],
+    stageBannerTitle: "",
+    stageBannerSubtitle: "",
+    stageBannerTimer: 0,
+    stageBannerDuration: 0,
+    renderCameraX: 0
   };
 
   function clamp(v, min, max) {
     return Math.max(min, Math.min(max, v));
   }
 
+  function lerp(a, b, t) {
+    return a + (b - a) * t;
+  }
+
   function pad(value, width) {
     return String(value).padStart(width, "0");
+  }
+
+  function alphaColor(hex, alpha) {
+    const color = parseHexColor(hex);
+    if (!color) {
+      return hex;
+    }
+    return `rgba(${color.r}, ${color.g}, ${color.b}, ${clamp(alpha, 0, 1)})`;
+  }
+
+  function currentTheme() {
+    return (state.stageConfig && state.stageConfig.theme) || STAGE_CONFIGS[0].theme;
+  }
+
+  function screenX(worldX) {
+    return Math.round(worldX - state.renderCameraX);
+  }
+
+  function screenY(worldY, offsetY) {
+    return Math.round(worldY + offsetY);
+  }
+
+  function pushFloatingText(text, x, y, color, life = 0.75, options = {}) {
+    state.floating.push({
+      text,
+      x,
+      y,
+      color,
+      t: life,
+      life,
+      rise: options.rise || 34,
+      size: options.size || 16
+    });
+  }
+
+  function emitParticle(config) {
+    state.particles.push({
+      kind: config.kind || "spark",
+      x: config.x,
+      y: config.y,
+      vx: config.vx || 0,
+      vy: config.vy || 0,
+      gravity: config.gravity ?? GRAVITY * 0.18,
+      life: config.life ?? 0.45,
+      maxLife: config.life ?? 0.45,
+      color: config.color || "#ffffff",
+      size: config.size ?? 6,
+      shrink: config.shrink ?? 10,
+      rotation: config.rotation ?? 0,
+      vr: config.vr ?? 0,
+      outline: config.outline || null
+    });
+  }
+
+  function emitBurst(x, y, options = {}) {
+    const count = options.count ?? 6;
+    const colors = options.colors || ["#fff7c2"];
+    for (let i = 0; i < count; i += 1) {
+      const spread = (i / Math.max(1, count - 1)) - 0.5;
+      emitParticle({
+        kind: options.kind || "spark",
+        x,
+        y,
+        vx: spread * (options.spreadX ?? 180) + (Math.random() * 40 - 20),
+        vy: -(options.lift ?? 90) - Math.random() * (options.liftVariance ?? 90) + (options.vyOffset || 0),
+        gravity: options.gravity ?? GRAVITY * 0.16,
+        life: lerp(options.lifeMin ?? 0.22, options.lifeMax ?? 0.5, Math.random()),
+        color: colors[i % colors.length],
+        size: lerp(options.sizeMin ?? 4, options.sizeMax ?? 9, Math.random()),
+        shrink: options.shrink ?? 11,
+        rotation: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 5
+      });
+    }
+  }
+
+  function emitJumpBurst(player) {
+    const centerX = player.x + player.w * 0.5;
+    const feetY = player.y + player.h - 4;
+    emitParticle({
+      kind: "ring",
+      x: centerX,
+      y: feetY,
+      life: 0.28,
+      size: 10,
+      shrink: -48,
+      gravity: 0,
+      color: "#fff2bf",
+      outline: "#61e4ff"
+    });
+    emitBurst(centerX, feetY, {
+      kind: "dust",
+      count: 5,
+      colors: ["#fef7d0", "#b6efff"],
+      spreadX: 120,
+      lift: 30,
+      liftVariance: 28,
+      gravity: GRAVITY * 0.1,
+      sizeMin: 10,
+      sizeMax: 16,
+      lifeMin: 0.24,
+      lifeMax: 0.38,
+      shrink: 18
+    });
+  }
+
+  function emitLandingBurst(player, impact = 0.5) {
+    const centerX = player.x + player.w * 0.5;
+    const feetY = player.y + player.h - 2;
+    emitParticle({
+      kind: "ring",
+      x: centerX,
+      y: feetY,
+      life: 0.34,
+      size: 14 + impact * 6,
+      shrink: -62,
+      gravity: 0,
+      color: "#fff1c7",
+      outline: "#ffd25b"
+    });
+    emitBurst(centerX, feetY, {
+      kind: "dust",
+      count: 8,
+      colors: ["#fff7d8", "#c0ecff", "#ffd9ab"],
+      spreadX: 210 + impact * 80,
+      lift: 54 + impact * 40,
+      liftVariance: 36,
+      gravity: GRAVITY * 0.14,
+      sizeMin: 9,
+      sizeMax: 18,
+      lifeMin: 0.22,
+      lifeMax: 0.48,
+      shrink: 14
+    });
+  }
+
+  function emitSkidBurst(player) {
+    const centerX = player.x + player.w * 0.5;
+    const feetY = player.y + player.h - 4;
+    emitBurst(centerX, feetY, {
+      kind: "streak",
+      count: 5,
+      colors: ["#ffd67a", "#d7fbff"],
+      spreadX: 110,
+      lift: 26,
+      liftVariance: 22,
+      gravity: GRAVITY * 0.08,
+      sizeMin: 10,
+      sizeMax: 16,
+      lifeMin: 0.16,
+      lifeMax: 0.28,
+      shrink: 10
+    });
+  }
+
+  function emitPickupBurst(x, y, colors) {
+    emitParticle({
+      kind: "ring",
+      x,
+      y,
+      life: 0.3,
+      size: 10,
+      shrink: -54,
+      gravity: 0,
+      color: colors[0],
+      outline: colors[1] || colors[0]
+    });
+    emitBurst(x, y, {
+      kind: "spark",
+      count: 7,
+      colors,
+      spreadX: 160,
+      lift: 80,
+      liftVariance: 50,
+      gravity: GRAVITY * 0.04,
+      sizeMin: 5,
+      sizeMax: 9,
+      lifeMin: 0.2,
+      lifeMax: 0.42,
+      shrink: 12
+    });
   }
 
   function overlap(a, b) {
@@ -206,7 +503,7 @@
       return;
     }
     if (context.state === "suspended") {
-      context.resume().catch(() => {});
+      context.resume().catch(() => { });
     }
   }
 
@@ -315,14 +612,22 @@
     cvs.width = srcW;
     cvs.height = srcH;
     const c2 = cvs.getContext("2d", { willReadFrequently: true });
-    c2.imageSmoothingEnabled = false;
+    if (!c2) {
+      return null;
+    }
+    c2.imageSmoothingEnabled = true;
     c2.drawImage(image, 0, 0);
 
     if (!chroma) {
       return cvs;
     }
 
-    const imgData = c2.getImageData(0, 0, srcW, srcH);
+    let imgData;
+    try {
+      imgData = c2.getImageData(0, 0, srcW, srcH);
+    } catch {
+      return cvs;
+    }
     const pixels = imgData.data;
 
     let key = null;
@@ -358,9 +663,185 @@
     out.width = rect.w;
     out.height = rect.h;
     const outCtx = out.getContext("2d");
-    outCtx.imageSmoothingEnabled = false;
+    if (!outCtx) {
+      return null;
+    }
+    outCtx.imageSmoothingEnabled = true;
     outCtx.drawImage(image, rect.x, rect.y, rect.w, rect.h, 0, 0, rect.w, rect.h);
     return prepareSprite(out, { chroma, tolerance });
+  }
+
+  function getDrawableSize(image) {
+    if (!image) {
+      return { width: 0, height: 0 };
+    }
+    return {
+      width: image.naturalWidth || image.videoWidth || image.width || 0,
+      height: image.naturalHeight || image.videoHeight || image.height || 0
+    };
+  }
+
+  function isDrawableAsset(image) {
+    const { width, height } = getDrawableSize(image);
+    return width > 0 && height > 0;
+  }
+
+  function hasVisiblePixels(image, minPixels = 18) {
+    if (!isDrawableAsset(image)) {
+      return false;
+    }
+
+    const { width, height } = getDrawableSize(image);
+    const sample = document.createElement("canvas");
+    sample.width = width;
+    sample.height = height;
+    const sampleCtx = sample.getContext("2d", { willReadFrequently: true });
+    if (!sampleCtx) {
+      return false;
+    }
+
+    sampleCtx.drawImage(image, 0, 0, width, height);
+    try {
+      const pixels = sampleCtx.getImageData(0, 0, width, height).data;
+      let visibleCount = 0;
+      for (let i = 3; i < pixels.length; i += 4) {
+        if (pixels[i] <= 24) {
+          continue;
+        }
+        visibleCount += 1;
+        if (visibleCount >= minPixels) {
+          return true;
+        }
+      }
+    } catch {
+      return false;
+    }
+    return false;
+  }
+
+  function normalizeCropRect(rect) {
+    if (!rect) {
+      return null;
+    }
+    const x = Math.round(Number(rect.x));
+    const y = Math.round(Number(rect.y));
+    const w = Math.round(Number(rect.w));
+    const h = Math.round(Number(rect.h));
+    if (![x, y, w, h].every(Number.isFinite) || w <= 0 || h <= 0) {
+      return null;
+    }
+    return { x, y, w, h };
+  }
+
+  function validateCropRect(image, rect) {
+    const safeRect = normalizeCropRect(rect);
+    if (!safeRect || !isDrawableAsset(image)) {
+      return null;
+    }
+
+    const { width, height } = getDrawableSize(image);
+    if (safeRect.x < 0 || safeRect.y < 0 || safeRect.x + safeRect.w > width || safeRect.y + safeRect.h > height) {
+      return null;
+    }
+    return safeRect;
+  }
+
+  function cropSpriteIfValid(image, rect, options = {}) {
+    const safeRect = validateCropRect(image, rect);
+    if (!safeRect) {
+      return null;
+    }
+
+    const sprite = cropSprite(image, safeRect, options);
+    return hasVisiblePixels(sprite, options.minVisiblePixels || 24) ? sprite : null;
+  }
+
+  function getPlayerSheetMetadata() {
+    return manifests.player_sheet || DEFAULT_PLAYER_SHEET_METADATA;
+  }
+
+  function resolvePlayerSprite(...keys) {
+    const manifest = getPlayerSheetMetadata();
+    for (const requestedKey of keys) {
+      let currentKey = requestedKey;
+      const visited = new Set();
+
+      while (currentKey && !visited.has(currentKey)) {
+        visited.add(currentKey);
+        if (isDrawableAsset(assets[currentKey])) {
+          return {
+            key: currentKey,
+            image: assets[currentKey],
+            frame: (manifest.frames && manifest.frames[currentKey]) || null
+          };
+        }
+
+        const frameFallback = manifest.frames && manifest.frames[currentKey] && manifest.frames[currentKey].fallback;
+        if (frameFallback && !visited.has(frameFallback)) {
+          currentKey = frameFallback;
+          continue;
+        }
+
+        const aliasKey = manifest.aliases && manifest.aliases[currentKey];
+        if (aliasKey && !visited.has(aliasKey)) {
+          currentKey = aliasKey;
+          continue;
+        }
+
+        currentKey = null;
+      }
+    }
+
+    return null;
+  }
+
+  function getPlayerSprite(...keys) {
+    const resolved = resolvePlayerSprite(...keys);
+    return resolved ? resolved.image : null;
+  }
+
+  function hasPlayerCapability(key) {
+    const manifest = getPlayerSheetMetadata();
+    if (!manifest.capabilities || !Object.prototype.hasOwnProperty.call(manifest.capabilities, key)) {
+      return false;
+    }
+    return Boolean(manifest.capabilities[key]);
+  }
+
+  function applyValidatedSheetOverrides(sheet, rects, options = {}) {
+    if (!isDrawableAsset(sheet)) {
+      return;
+    }
+
+    for (const [key, rect] of Object.entries(rects)) {
+      const candidate = cropSpriteIfValid(sheet, rect, options);
+      if (candidate) {
+        assets[key] = candidate;
+      }
+    }
+  }
+
+  function validateAtlasRect(image, rect) {
+    if (!image || !rect) {
+      return false;
+    }
+    const width = image.naturalWidth || image.width;
+    const height = image.naturalHeight || image.height;
+    return rect.x >= 0
+      && rect.y >= 0
+      && rect.w > 0
+      && rect.h > 0
+      && rect.x + rect.w <= width
+      && rect.y + rect.h <= height;
+  }
+
+  function loadJson(path) {
+    return fetch(path).then((res) => {
+      if (!res.ok) {
+        throw new Error(`Failed to load ${path}`);
+      }
+      return res.json();
+    });
   }
 
   function applyHighQualitySheetOverrides() {
@@ -369,18 +850,18 @@
     }
 
     if (assets.player_sheet) {
-      const playerRects = {
-        player_run_1: { x: 36, y: 65, w: 129, h: 208 },
-        player_run_2: { x: 188, y: 65, w: 122, h: 208 },
-        player_run_3: { x: 334, y: 65, w: 124, h: 207 },
-        player_skid: { x: 478, y: 65, w: 125, h: 208 },
-        player_jump: { x: 176, y: 310, w: 138, h: 245 },
-        player_idle: { x: 36, y: 338, w: 103, h: 257 },
-        player_duck: { x: 318, y: 406, w: 127, h: 189 }
-      };
-
-      for (const [key, rect] of Object.entries(playerRects)) {
-        assets[key] = cropSprite(assets.player_sheet, rect, { chroma: true, tolerance: 26 });
+      const manifest = getPlayerSheetMetadata();
+      const playerFrames = manifest.frames || {};
+      for (const [key, frame] of Object.entries(playerFrames)) {
+        const next = cropSpriteIfValid(assets.player_sheet, frame, {
+          chroma: frame.chroma ?? manifest.defaults?.chroma ?? true,
+          tolerance: frame.tolerance ?? manifest.defaults?.tolerance ?? 18
+        });
+        if (next) {
+          assets[key] = next;
+        } else {
+          console.warn(`Player atlas crop for ${key} was invalid or empty; keeping fallback asset.`);
+        }
       }
     }
 
@@ -397,24 +878,37 @@
       };
 
       for (const [key, rect] of Object.entries(tileRects)) {
-        assets[key] = cropSprite(assets.tiles_sheet, rect, { chroma: false });
+        if (!validateAtlasRect(assets.tiles_sheet, rect)) {
+          console.warn(`Invalid tile atlas rect for ${key}`);
+          continue;
+        }
+        const next = cropSprite(assets.tiles_sheet, rect, { chroma: false });
+        if (hasVisiblePixels(next, 36)) {
+          assets[key] = next;
+        }
       }
     }
 
     if (assets.enemies_items_sheet) {
       const entityRects = {
-        goomba: { x: 60, y: 65, w: 151, h: 170 },
-        coin: { x: 456, y: 252, w: 116, h: 136 },
-        mushroom: { x: 60, y: 422, w: 150, h: 147 },
-        star: { x: 255, y: 417, w: 146, h: 150 },
-        heart: { x: 445, y: 437, w: 135, h: 120 }
+        // Updated sheet-aligned crops for the new enemies/items art.
+        goomba: { x: 31, y: 25, w: 231, h: 260 },
+        mushroom: { x: 340, y: 28, w: 263, h: 259 },
+        coin: { x: 314, y: 299, w: 145, h: 156 },
+        star: { x: 403, y: 406, w: 208, h: 200 }
       };
 
       for (const [key, rect] of Object.entries(entityRects)) {
-        assets[key] = cropSprite(assets.enemies_items_sheet, rect, { chroma: true, tolerance: 24 });
+        if (!validateAtlasRect(assets.enemies_items_sheet, rect)) {
+          console.warn(`Invalid entity atlas rect for ${key}`);
+          continue;
+        }
+        const next = cropSprite(assets.enemies_items_sheet, rect, { chroma: true, tolerance: 24 });
+        if (hasVisiblePixels(next)) {
+          assets[key] = next;
+        }
       }
-
-      if (assets.goomba) {
+      if (!isDrawableAsset(assets.goomba_squish) && isDrawableAsset(assets.goomba)) {
         assets.goomba_squish = assets.goomba;
       }
     }
@@ -427,7 +921,14 @@
       };
 
       for (const [key, rect] of Object.entries(sceneryRects)) {
-        assets[key] = cropSprite(assets.scenery_sheet, rect, { chroma: true, tolerance: 20 });
+        if (!validateAtlasRect(assets.scenery_sheet, rect)) {
+          console.warn(`Invalid scenery atlas rect for ${key}`);
+          continue;
+        }
+        const next = cropSprite(assets.scenery_sheet, rect, { chroma: true, tolerance: 20 });
+        if (hasVisiblePixels(next)) {
+          assets[key] = next;
+        }
       }
     }
   }
@@ -443,19 +944,13 @@
 
   async function loadAssets() {
     const entries = Object.entries(assetPath);
+    const manifestEntries = Object.entries(manifestPath);
     const loadPromises = entries.map(async ([key, path]) => {
       try {
         const image = await loadImage(path);
-        const isTile = key.startsWith("tile_")
-          || key === "sky"
-          || key === "sky_hq"
-          || key === "pipe_top"
-          || key === "pipe_body"
-          || key.endsWith("_sheet");
-        const isDynamicSprite = !isTile;
         assets[key] = prepareSprite(image, {
-          chroma: isDynamicSprite,
-          tolerance: 18,
+          chroma: false,
+          tolerance: 12,
           forceColor: null
         });
       } catch (err) {
@@ -464,8 +959,18 @@
       }
     });
 
-    await Promise.all(loadPromises);
+    const manifestPromises = manifestEntries.map(async ([key, path]) => {
+      try {
+        manifests[key] = await loadJson(path);
+      } catch (err) {
+        manifests[key] = null;
+        console.warn(err.message);
+      }
+    });
+
+    await Promise.all([...loadPromises, ...manifestPromises]);
     applyHighQualitySheetOverrides();
+    runtimeCapabilities.playerWin = hasPlayerCapability("player_win") && hasVisiblePixels(getPlayerSprite("player_win"), 48);
   }
 
   function makeEmptyGrid(cols, rows) {
@@ -556,11 +1061,23 @@
     }
 
     for (let x = 8; x < LEVEL_COLS; x += 14) {
-      level.sceneryClouds.push({ x: x * TILE + (x % 2) * 80, y: 60 + (x % 3) * 34, w: TILE * 2.6, h: TILE * 1.3 });
+      level.sceneryClouds.push({
+        x: x * TILE + (x % 2) * 80,
+        y: 60 + (x % 3) * 34,
+        w: TILE * (2.35 + (x % 3) * 0.22),
+        h: TILE * (1.16 + (x % 2) * 0.14),
+        variant: x % 3 === 0 ? 1 : 0
+      });
     }
 
     for (let x = 6; x < LEVEL_COLS; x += 18) {
-      level.sceneryBushes.push({ x: x * TILE, y: GROUND_ROW * TILE - TILE * 0.9, w: TILE * 2.4, h: TILE * 1.2 });
+      level.sceneryBushes.push({
+        x: x * TILE,
+        y: GROUND_ROW * TILE - TILE * 0.9,
+        w: TILE * (2.1 + (x % 4) * 0.12),
+        h: TILE * (1.08 + (x % 3) * 0.08),
+        variant: x % 4 === 0 ? 1 : 0
+      });
     }
 
     return level;
@@ -577,11 +1094,12 @@
     state.coins += 1;
     state.score += 100;
     playCoinSound();
+    emitPickupBurst(x, y, ["#fff0a6", "#61e4ff", "#ffd25b"]);
     if (state.coins % 50 === 0) {
       state.lives += 1;
-      state.floating.push({ text: "חיים +1", x, y: y - 18, t: 0.9, color: "#d4ff8f" });
+      pushFloatingText("חיים +1", x, y - 18, "#d4ff8f", 0.9, { size: 18 });
     }
-    state.floating.push({ text: "+100", x, y, t: 0.7, color: "#ffe26f" });
+    pushFloatingText("+100", x, y, "#ffe26f", 0.7);
   }
 
   function spawnMushroom(x, y) {
@@ -589,8 +1107,8 @@
       kind: "mushroom",
       x,
       y,
-      w: 28,
-      h: 28,
+      w: MUSHROOM_SIZE,
+      h: MUSHROOM_SIZE,
       vx: 72,
       vy: -80,
       alive: true
@@ -617,8 +1135,8 @@
       kind: "goomba",
       x,
       y,
-      w: 36,
-      h: 36,
+      w: GOOMBA_SIZE,
+      h: GOOMBA_SIZE,
       vx: -speed,
       vy: 0,
       dir: -1,
@@ -633,7 +1151,7 @@
     const positions = (stage && stage.enemyTiles) || [[55, 10], [126, 10], [188, 10]];
     const speed = Math.max(36, (stage && stage.enemySpeed) || 42);
     for (const [tx, ty] of positions) {
-      spawnEnemy(tx * TILE + 6, ty * TILE, speed);
+      spawnEnemy(tx * TILE + (TILE - GOOMBA_SIZE) * 0.5, ty * TILE, speed);
     }
   }
 
@@ -705,6 +1223,9 @@
       controlLocked: false,
       jumpCount: 0,
       animT: 0,
+      runFxTimer: 0,
+      skidFxTimer: 0,
+      actionFlash: 0,
       dead: false
     };
   }
@@ -755,9 +1276,10 @@
         tile.used = true;
         tile.type = "empty";
         if (tile.content === "mushroom") {
-          spawnMushroom(solid.x + 10, solid.y - 30);
+          spawnMushroom(solid.x + (TILE - MUSHROOM_SIZE) * 0.5, solid.y - MUSHROOM_SIZE - 4);
           state.score += 1000;
-          state.floating.push({ text: "+1000", x: worldX, y: worldY - 6, t: 0.9, color: "#ffe26f" });
+          emitPickupBurst(worldX, worldY - 6, ["#ffe26f", "#fff5c1", "#61e4ff"]);
+          pushFloatingText("+1000", worldX, worldY - 6, "#ffe26f", 0.9, { size: 18 });
         } else {
           collectCoin(worldX, worldY - 6);
         }
@@ -766,15 +1288,21 @@
       if (state.player.big) {
         state.level.tiles[solid.ty][solid.tx] = null;
         state.score += 50;
-        state.floating.push({ text: "+50", x: worldX, y: worldY - 6, t: 0.7, color: "#ffc8a2" });
+        pushFloatingText("+50", worldX, worldY - 6, "#ffc8a2", 0.7);
         for (let i = 0; i < 6; i += 1) {
-          state.particles.push({
+          emitParticle({
+            kind: "chunk",
             x: worldX,
             y: worldY + 10,
             vx: (Math.random() * 180) - 90,
             vy: -220 - Math.random() * 120,
             life: 0.5,
-            color: "#c14f35"
+            color: "#c14f35",
+            size: 7,
+            gravity: GRAVITY * 0.42,
+            shrink: 8,
+            rotation: Math.random() * Math.PI,
+            vr: (Math.random() - 0.5) * 8
           });
         }
       } else {
@@ -854,7 +1382,8 @@
     const p = state.player;
     if (p.big) {
       state.score += 500;
-      state.floating.push({ text: "+500", x: p.x + 20, y: p.y - 10, t: 0.8, color: "#c5ff85" });
+      emitPickupBurst(p.x + p.w * 0.5, p.y + 8, ["#d4ff8f", "#fff5c1", "#61e4ff"]);
+      pushFloatingText("+500", p.x + 20, p.y - 10, "#c5ff85", 0.8);
       return;
     }
     p.big = true;
@@ -862,10 +1391,19 @@
     p.h = PLAYER_BIG.h;
     p.invulnerable = 1.6;
     state.score += 1000;
-    state.floating.push({ text: "כוח על!", x: p.x + 20, y: p.y - 10, t: 1.0, color: "#c5ff85" });
+    p.actionFlash = 0.4;
+    emitPickupBurst(p.x + p.w * 0.5, p.y + 16, ["#d4ff8f", "#fff5c1", "#61e4ff"]);
+    pushFloatingText("כוח על!", p.x + 20, p.y - 10, "#c5ff85", 1.0, { size: 18 });
   }
 
-  function loadStage(stageIndex) {
+  function showStageBanner(title, subtitle = "", duration = 2.3) {
+    state.stageBannerTitle = title;
+    state.stageBannerSubtitle = subtitle;
+    state.stageBannerDuration = duration;
+    state.stageBannerTimer = duration;
+  }
+
+  function loadStage(stageIndex, bannerTitle = "") {
     const safeIndex = clamp(stageIndex, 0, STAGE_CONFIGS.length - 1);
     const stage = STAGE_CONFIGS[safeIndex];
 
@@ -875,6 +1413,7 @@
     state.timeLeft = stage.time;
     state.secondTick = 0;
     state.cameraX = 0;
+    state.renderCameraX = 0;
     state.flash = 0;
     state.flagCaptured = false;
     state.checkpointX = CHECKPOINTS[0];
@@ -890,6 +1429,9 @@
 
     initialEnemyLayout(stage);
     initialCoinsLayout();
+
+    const stageTitle = bannerTitle || `שלב ${stage.world}`;
+    showStageBanner(stageTitle, `זמן לשלב: ${stage.time}`, 2.4);
   }
 
   function advanceToNextStage() {
@@ -901,10 +1443,12 @@
 
     const timeBonus = Math.max(0, state.timeLeft) * 5;
     state.score += 2500 + timeBonus;
-    loadStage(state.stageIndex + 1);
+    const nextStage = STAGE_CONFIGS[state.stageIndex + 1];
+    loadStage(state.stageIndex + 1, `מעבר לשלב ${nextStage.world}!`);
     state.mode = "playing";
     state.player.invulnerable = 1.2;
-    state.floating.push({ text: `שלב ${state.world}`, x: state.player.x + 70, y: state.player.y - 18, t: 1.2, color: "#fff5a8" });
+    state.player.actionFlash = 0.45;
+    pushFloatingText("שלב הושלם!", state.player.x + 70, state.player.y - 18, "#fff5a8", 1.2, { size: 20, rise: 28 });
   }
 
   function startGame() {
@@ -913,7 +1457,7 @@
     state.score = 0;
     state.coins = 0;
     state.lives = START_LIVES;
-    loadStage(0);
+    loadStage(0, `מתחילים: ${STAGE_CONFIGS[0].world}`);
     state.mode = "playing";
 
     ui.title.classList.add("hidden");
@@ -936,6 +1480,7 @@
     state.player = createPlayer(state.checkpointX);
     state.player.invulnerable = 1.8;
     state.cameraX = clamp(state.checkpointX - canvas.clientWidth * 0.25, 0, Math.max(0, state.level.width - canvas.clientWidth));
+    state.renderCameraX = Math.round(state.cameraX);
   }
 
   function keySet(code, down) {
@@ -992,6 +1537,8 @@
           input.left = on;
         } else if (action === "right") {
           input.right = on;
+        } else if (action === "down") {
+          input.down = on;
         } else if (action === "run") {
           input.run = on;
         } else if (action === "jump") {
@@ -1008,19 +1555,40 @@
       btn.addEventListener("pointerdown", (e) => {
         e.preventDefault();
         unlockAudio();
+        if (btn.setPointerCapture) {
+          btn.setPointerCapture(e.pointerId);
+        }
         press(true);
       });
       btn.addEventListener("pointerup", (e) => {
         e.preventDefault();
+        if (btn.releasePointerCapture && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
+          btn.releasePointerCapture(e.pointerId);
+        }
         press(false);
       });
-      btn.addEventListener("pointercancel", () => press(false));
-      btn.addEventListener("pointerleave", () => press(false));
+      btn.addEventListener("pointercancel", (e) => {
+        if (btn.releasePointerCapture && btn.hasPointerCapture && btn.hasPointerCapture(e.pointerId)) {
+          btn.releasePointerCapture(e.pointerId);
+        }
+        press(false);
+      });
+      btn.addEventListener("pointerleave", (e) => {
+        if (!btn.hasPointerCapture || !btn.hasPointerCapture(e.pointerId)) {
+          press(false);
+        }
+      });
     });
   }
 
   function updatePlayer(dt) {
     const p = state.player;
+    const wasOnGround = p.onGround;
+    const prevVx = p.vx;
+
+    p.runFxTimer = Math.max(0, p.runFxTimer - dt);
+    p.skidFxTimer = Math.max(0, p.skidFxTimer - dt);
+    p.actionFlash = Math.max(0, p.actionFlash - dt);
 
     if (p.invulnerable > 0) {
       p.invulnerable -= dt;
@@ -1046,6 +1614,11 @@
         p.facing = dir;
         const turning = p.onGround && Math.sign(p.vx) !== 0 && Math.sign(p.vx) !== dir;
         const steerAccel = turning ? accel * 1.45 : accel;
+        if (turning && Math.abs(prevVx) > RUN_SPEED * 0.38 && p.skidFxTimer <= 0) {
+          emitSkidBurst(p);
+          p.skidFxTimer = 0.14;
+          p.actionFlash = Math.max(p.actionFlash, 0.14);
+        }
         if (p.vx < target) {
           p.vx = Math.min(target, p.vx + steerAccel * dt);
         } else if (p.vx > target) {
@@ -1081,6 +1654,8 @@
         p.jumpBuffer = 0;
         p.coyote = 0;
         p.jumpCount = Math.min(2, p.jumpCount + 1);
+        p.actionFlash = Math.max(p.actionFlash, 0.18);
+        emitJumpBurst(p);
       }
 
       if (input.jumpReleased && p.vy < -280) {
@@ -1089,8 +1664,34 @@
     }
 
     p.vy = clamp(p.vy + GRAVITY * dt, -1200, MAX_FALL);
+    const preMoveVy = p.vy;
 
     moveWithCollisions(p, dt, settleTileHitFromBelow);
+
+    const landed = !wasOnGround && p.onGround;
+    if (landed) {
+      emitLandingBurst(p, clamp(Math.abs(preMoveVy) / MAX_FALL, 0.25, 1));
+      p.actionFlash = Math.max(p.actionFlash, 0.16);
+    }
+
+    const groundedSpeed = Math.abs(p.vx);
+    if (!p.controlLocked && p.onGround && groundedSpeed > RUN_SPEED * 0.58 && p.runFxTimer <= 0) {
+      emitBurst(p.x + p.w * 0.5, p.y + p.h - 3, {
+        kind: "dust",
+        count: 4,
+        colors: ["#fff6d6", "#c4efff"],
+        spreadX: 90,
+        lift: 18,
+        liftVariance: 18,
+        gravity: GRAVITY * 0.08,
+        sizeMin: 8,
+        sizeMax: 13,
+        lifeMin: 0.18,
+        lifeMax: 0.28,
+        shrink: 16
+      });
+      p.runFxTimer = groundedSpeed > RUN_SPEED * 0.85 ? 0.07 : 0.11;
+    }
 
     if (p.y > state.level.height + TILE * 2) {
       hurtPlayer();
@@ -1101,15 +1702,17 @@
       if (overlap(p, flagRect)) {
         state.flagCaptured = true;
         state.score += 5000;
-        state.floating.push({ text: "דגל +5000", x: p.x, y: p.y - 20, t: 1.2, color: "#fff5a8" });
+        p.actionFlash = 0.42;
+        emitPickupBurst(p.x + p.w * 0.5, p.y + 8, ["#fff5a8", "#61e4ff", "#ffd25b"]);
+        pushFloatingText("דגל +5000", p.x, p.y - 20, "#fff5a8", 1.2, { size: 20, rise: 28 });
       }
     } else if (p.x > state.castleX + TILE * 1.5 && state.mode === "playing") {
       advanceToNextStage();
     }
 
-    if (p.x < 0) {
-      p.x = 0;
-      p.vx = 0;
+    if (p.x < state.cameraX) {
+      p.x = state.cameraX;
+      if (p.vx < 0) p.vx = 0;
     }
 
     if (p.x + p.w > state.level.width) {
@@ -1120,7 +1723,9 @@
     if (!state.flagCaptured && state.nextCheckpointIdx < CHECKPOINTS.length && p.x >= CHECKPOINTS[state.nextCheckpointIdx]) {
       state.checkpointX = CHECKPOINTS[state.nextCheckpointIdx];
       state.nextCheckpointIdx += 1;
-      state.floating.push({ text: "נקודת שמירה", x: p.x + 12, y: p.y - 14, t: 1, color: "#b7ebff" });
+      p.actionFlash = Math.max(p.actionFlash, 0.28);
+      emitPickupBurst(p.x + p.w * 0.5, p.y + 14, ["#b7ebff", "#61e4ff", "#fff7c2"]);
+      pushFloatingText("נקודת שמירה", p.x + 12, p.y - 14, "#b7ebff", 1, { size: 18 });
     }
 
     p.animT += dt;
@@ -1188,13 +1793,29 @@
 
       if (overlap(p, enemy) && !p.dead && state.mode === "playing") {
         const playerBottom = p.y + p.h;
-        const stomp = p.vy > 120 && playerBottom - enemy.y < 28;
+        const stompWindow = Math.max(24, enemy.h * 0.78);
+        const stomp = p.vy > 120 && playerBottom - enemy.y < stompWindow;
         if (stomp) {
           enemy.dead = true;
           enemy.deadTimer = 0.45;
           p.vy = -BOUNCE_VELOCITY;
           state.score += 100;
-          state.floating.push({ text: "+100", x: enemy.x, y: enemy.y, t: 0.7, color: "#ffe26f" });
+          p.actionFlash = Math.max(p.actionFlash, 0.14);
+          emitBurst(enemy.x + enemy.w * 0.5, enemy.y + enemy.h * 0.5, {
+            kind: "spark",
+            count: 6,
+            colors: ["#ffe26f", "#fff6cb", "#ffbd7b"],
+            spreadX: 150,
+            lift: 80,
+            liftVariance: 50,
+            gravity: GRAVITY * 0.1,
+            sizeMin: 5,
+            sizeMax: 9,
+            lifeMin: 0.18,
+            lifeMax: 0.34,
+            shrink: 14
+          });
+          pushFloatingText("+100", enemy.x, enemy.y, "#ffe26f", 0.7);
         } else {
           hurtPlayer();
         }
@@ -1256,8 +1877,11 @@
 
   function updateFloating(dt) {
     for (const msg of state.floating) {
+      if (!msg.life) {
+        msg.life = msg.t;
+      }
       msg.t -= dt;
-      msg.y -= 34 * dt;
+      msg.y -= (msg.rise || 34) * dt;
     }
     state.floating = state.floating.filter((msg) => msg.t > 0);
   }
@@ -1265,9 +1889,11 @@
   function updateParticles(dt) {
     for (const p of state.particles) {
       p.life -= dt;
-      p.vy += GRAVITY * 0.55 * dt;
+      p.vy += (p.gravity ?? GRAVITY * 0.55) * dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
+      p.rotation += (p.vr || 0) * dt;
+      p.size = Math.max(0.5, p.size - (p.shrink || 0) * dt);
     }
     state.particles = state.particles.filter((p) => p.life > 0);
   }
@@ -1277,8 +1903,11 @@
     const p = state.player;
     const target = p.x - viewW * 0.35;
     const maxCam = Math.max(0, state.level.width - viewW);
-    state.cameraX += (target - state.cameraX) * Math.min(1, dt * 5.5);
-    state.cameraX = clamp(state.cameraX, 0, maxCam);
+    const nextCameraX = state.cameraX + (target - state.cameraX) * Math.min(1, dt * 5.5);
+    if (nextCameraX > state.cameraX) {
+      state.cameraX = clamp(nextCameraX, 0, maxCam);
+    }
+    state.renderCameraX = Math.round(state.cameraX);
   }
 
   function updateTimer(dt) {
@@ -1298,10 +1927,18 @@
     }
   }
 
+  function updateStageBanner(dt) {
+    if (state.stageBannerTimer > 0) {
+      state.stageBannerTimer = Math.max(0, state.stageBannerTimer - dt);
+    }
+  }
+
   function update(dt) {
     if (!state.level || !state.player) {
       return;
     }
+
+    updateStageBanner(dt);
 
     if (state.mode === "title" || state.mode === "gameover" || state.mode === "win") {
       input.jumpPressed = false;
@@ -1352,11 +1989,15 @@
   }
 
   function drawImageOrFallback(image, x, y, w, h, color) {
+    const drawX = Math.round(x);
+    const drawY = Math.round(y);
+    const drawW = Math.round(w);
+    const drawH = Math.round(h);
     if (image) {
-      ctx.drawImage(image, x, y, w, h);
+      ctx.drawImage(image, drawX, drawY, drawW, drawH);
     } else {
       ctx.fillStyle = color;
-      ctx.fillRect(x, y, w, h);
+      ctx.fillRect(drawX, drawY, drawW, drawH);
     }
   }
 
@@ -1367,47 +2008,125 @@
     return Math.min(0, viewH - state.level.height - VERTICAL_VIEW_PADDING);
   }
 
+  function getSupportDistance(entity, maxDistance = TILE * 2.5) {
+    const probe = {
+      x: entity.x + 4,
+      y: entity.y + entity.h,
+      w: Math.max(8, entity.w - 8),
+      h: maxDistance
+    };
+    const solids = getVisibleSolidRects(state.level, probe.x, probe.y, probe.w, probe.h);
+    let best = maxDistance;
+    for (const solid of solids) {
+      if (solid.y < entity.y + entity.h - 1) {
+        continue;
+      }
+      if (solid.x >= entity.x + entity.w - 2 || solid.x + solid.w <= entity.x + 2) {
+        continue;
+      }
+      best = Math.min(best, solid.y - (entity.y + entity.h));
+    }
+    return clamp(best, 0, maxDistance);
+  }
+
+  function drawPlayerShadow(offsetY) {
+    const p = state.player;
+    const groundDistance = getSupportDistance(p);
+    const shadowWidth = lerp(p.w * 0.92, p.w * 0.46, clamp(groundDistance / (TILE * 2), 0, 1));
+    const shadowHeight = lerp(12, 5, clamp(groundDistance / (TILE * 2), 0, 1));
+    const alpha = lerp(0.28, 0.1, clamp(groundDistance / (TILE * 2), 0, 1));
+    const shadowX = screenX(p.x + p.w * 0.5);
+    const shadowY = screenY(p.y + p.h + groundDistance - 3, offsetY);
+
+    ctx.save();
+    ctx.fillStyle = `rgba(8, 16, 30, ${alpha})`;
+    ctx.beginPath();
+    ctx.ellipse(shadowX, shadowY, shadowWidth * 0.5, shadowHeight * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
   function drawBackground(viewW, viewH, offsetY) {
+    const theme = currentTheme();
     const sky = assets.sky_hq || assets.sky;
+    const gradient = ctx.createLinearGradient(0, 0, 0, viewH);
+    gradient.addColorStop(0, theme.skyTop);
+    gradient.addColorStop(0.56, theme.skyMid);
+    gradient.addColorStop(1, theme.skyBottom);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, viewW, viewH);
+
+    const sunGlow = ctx.createRadialGradient(viewW * 0.18, viewH * 0.16, 10, viewW * 0.18, viewH * 0.16, viewW * 0.36);
+    sunGlow.addColorStop(0, alphaColor(theme.haze, 0.68));
+    sunGlow.addColorStop(0.42, alphaColor(theme.haze, 0.18));
+    sunGlow.addColorStop(1, alphaColor(theme.haze, 0));
+    ctx.fillStyle = sunGlow;
+    ctx.fillRect(0, 0, viewW, viewH);
+
     if (sky) {
+      ctx.save();
+      ctx.globalAlpha = 0.18;
       if (sky.width >= 256 && sky.height >= 256) {
-        const drift = ((state.cameraX * 0.12) % viewW);
+        const drift = Math.round((state.renderCameraX * 0.12) % viewW);
         ctx.drawImage(sky, -drift, 0, viewW, viewH);
         ctx.drawImage(sky, viewW - drift, 0, viewW, viewH);
       } else {
         const sw = 64;
         const sh = 64;
-        for (let x = -((state.cameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
+        for (let x = -((state.renderCameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
           for (let y = 0; y < viewH + sh; y += sh) {
-            ctx.drawImage(sky, x, y, sw, sh);
+            ctx.drawImage(sky, Math.round(x), y, sw, sh);
           }
         }
       }
-    } else {
-      ctx.fillStyle = "#87ceeb";
-      ctx.fillRect(0, 0, viewW, viewH);
+      ctx.restore();
     }
 
     const cloudImg = assets.cloud;
+    const cloudAlt = assets.cloud_alt || cloudImg;
     const bushImg = assets.bush;
-    const hillImg = assets.hill || null;
+    const bushAlt = assets.bush_alt || bushImg;
+    const hillImg = assets.hill || assets.hill_alt || null;
+    const hillAlt = assets.hill_alt || hillImg;
+
+    const horizon = GROUND_ROW * TILE + offsetY - 120;
+    ctx.fillStyle = theme.hillTint;
+    ctx.fillRect(0, horizon, viewW, 160);
 
     for (const cloud of state.level.sceneryClouds) {
-      const x = cloud.x - state.cameraX * 0.45;
-      drawImageOrFallback(cloudImg, x, cloud.y + offsetY, cloud.w, cloud.h, "rgba(255,255,255,0.8)");
+      const x = Math.round(cloud.x - state.renderCameraX * 0.45);
+      const image = cloud.variant ? cloudAlt : cloudImg;
+      ctx.save();
+      ctx.globalAlpha = cloud.variant ? 0.74 : 0.88;
+      drawImageOrFallback(image, x, screenY(cloud.y, offsetY), cloud.w, cloud.h, "rgba(255,255,255,0.8)");
+      ctx.restore();
     }
 
     if (hillImg) {
       for (let x = -220; x < viewW + 220; x += 290) {
-        const hillX = x - (state.cameraX * 0.22 % 290);
-        drawImageOrFallback(hillImg, hillX, (GROUND_ROW * TILE - 112) + offsetY, 290, 96, "#66a64b");
+        const hillX = Math.round(x - (state.renderCameraX * 0.22 % 290));
+        const image = (Math.floor((x + state.stageIndex * 47) / 290) % 2 === 0 ? hillImg : hillAlt) || hillImg;
+        ctx.save();
+        ctx.globalAlpha = 0.94;
+        drawImageOrFallback(image, hillX, screenY(GROUND_ROW * TILE - 112, offsetY), 290, 96, "#66a64b");
+        ctx.restore();
       }
     }
 
     for (const bush of state.level.sceneryBushes) {
-      const x = bush.x - state.cameraX * 0.78;
-      drawImageOrFallback(bushImg, x, bush.y + offsetY, bush.w, bush.h, "#2f9e4f");
+      const x = Math.round(bush.x - state.renderCameraX * 0.78);
+      const image = bush.variant ? bushAlt : bushImg;
+      ctx.save();
+      ctx.globalAlpha = 0.92;
+      drawImageOrFallback(image, x, screenY(bush.y, offsetY), bush.w, bush.h, "#2f9e4f");
+      ctx.restore();
     }
+
+    const vignette = ctx.createLinearGradient(0, viewH * 0.3, 0, viewH);
+    vignette.addColorStop(0, "rgba(255,255,255,0)");
+    vignette.addColorStop(1, alphaColor(theme.bushTint, 0.72));
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0, viewH * 0.3, viewW, viewH * 0.7);
   }
 
   function drawTiles(offsetY) {
@@ -1430,7 +2149,7 @@
         }
 
         const image = getTileImage(tile.type);
-        drawImageOrFallback(image, x * TILE - state.cameraX, drawY + offsetY, TILE, TILE, "#7d5a34");
+        drawImageOrFallback(image, screenX(x * TILE), screenY(drawY, offsetY), TILE, TILE, "#7d5a34");
       }
     }
   }
@@ -1444,106 +2163,279 @@
         const py = pipe.y + i * TILE;
         const isTop = i === 0;
         const img = isTop ? topImg : bodyImg;
-        drawImageOrFallback(img, pipe.x - state.cameraX, py + offsetY, pipe.w, TILE, "#169b3d");
+        const drawX = screenX(pipe.x);
+        const drawY = screenY(py, offsetY);
+        drawImageOrFallback(img, drawX, drawY, pipe.w, TILE, "#169b3d");
+        ctx.save();
+        ctx.fillStyle = "rgba(255,255,255,0.07)";
+        ctx.fillRect(drawX + pipe.w - 8, drawY + 2, 5, TILE - 4);
+        ctx.fillStyle = "rgba(10, 30, 20, 0.08)";
+        ctx.fillRect(drawX + 4, drawY + TILE - 6, pipe.w - 8, 4);
+        ctx.restore();
       }
     }
   }
 
   function drawFlagAndCastle(offsetY) {
-    const poleX = state.flagPoleX - state.cameraX;
-    const poleY = (GROUND_ROW - 5) * TILE + offsetY;
+    const theme = currentTheme();
+    const poleX = screenX(state.flagPoleX);
+    const poleY = screenY((GROUND_ROW - 5) * TILE, offsetY);
+    const castleBaseX = screenX(state.castleX);
+    const castleBaseY = screenY((GROUND_ROW - 2) * TILE, offsetY);
+    const flutter = Math.sin(performance.now() * 0.006) * 8;
 
-    ctx.fillStyle = "#f7f7f7";
+    ctx.save();
+    ctx.fillStyle = "rgba(8, 16, 30, 0.12)";
+    ctx.fillRect(poleX + 6, poleY + 14, 6, 6 * TILE);
+    ctx.fillStyle = "#f7f8fc";
     ctx.fillRect(poleX, poleY, 10, 6 * TILE);
+    ctx.fillStyle = theme.bannerAccent;
+    ctx.beginPath();
+    ctx.moveTo(poleX + 10, poleY + 18);
+    ctx.lineTo(poleX + 62 + flutter * 0.24, poleY + 12);
+    ctx.lineTo(poleX + 48 + flutter * 0.18, poleY + 46);
+    ctx.lineTo(poleX + 10, poleY + 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.45)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-    ctx.fillStyle = "#2ecf56";
-    ctx.fillRect(poleX + 10, poleY + 16, 52, 32);
-
-    const castleBaseX = state.castleX - state.cameraX;
-    const castleBaseY = (GROUND_ROW - 2) * TILE + offsetY;
-    ctx.fillStyle = "#8a8478";
+    ctx.fillStyle = "#766b86";
     ctx.fillRect(castleBaseX, castleBaseY, TILE * 3.5, TILE * 2);
-    ctx.fillStyle = "#6f6558";
-    ctx.fillRect(castleBaseX + TILE * 1.1, castleBaseY - TILE * 1.2, TILE * 1.3, TILE * 1.2);
+    ctx.fillStyle = "#a9a4bd";
+    ctx.fillRect(castleBaseX + 8, castleBaseY + 8, TILE * 3.5 - 16, TILE * 2 - 14);
+    ctx.fillStyle = "#5b516e";
+    ctx.fillRect(castleBaseX + TILE * 1.2, castleBaseY + TILE * 1.15, TILE * 0.8, TILE * 0.85);
+    ctx.fillStyle = "#766b86";
+    ctx.fillRect(castleBaseX + TILE * 1.05, castleBaseY - TILE * 1.15, TILE * 1.15, TILE * 1.15);
+    for (let i = 0; i < 4; i += 1) {
+      ctx.fillRect(castleBaseX + i * TILE * 0.82, castleBaseY - 14, TILE * 0.45, 14);
+    }
+    ctx.fillStyle = alphaColor(theme.bannerGlow, 0.26);
+    ctx.fillRect(castleBaseX + TILE * 1.26, castleBaseY + TILE * 1.3, TILE * 0.32, TILE * 0.2);
+    ctx.restore();
   }
 
   function drawItems(offsetY) {
     for (const item of state.items) {
-      const x = item.x - state.cameraX;
+      const x = screenX(item.x);
       if (item.kind === "coin") {
-        drawImageOrFallback(assets.coin, x, item.y + offsetY, item.w, item.h, "#f6da55");
+        drawImageOrFallback(assets.coin, x, screenY(item.y, offsetY), item.w, item.h, "#f6da55");
       } else if (item.kind === "mushroom") {
-        drawImageOrFallback(assets.mushroom, x, item.y + offsetY, item.w, item.h, "#ff4747");
+        drawImageOrFallback(assets.mushroom, x, screenY(item.y, offsetY), item.w, item.h, "#ff4747");
       }
     }
   }
 
   function drawEnemies(offsetY) {
     for (const enemy of state.enemies) {
-      const x = enemy.x - state.cameraX;
+      const x = screenX(enemy.x);
       if (enemy.dead) {
-        drawImageOrFallback(assets.goomba_squish || assets.goomba, x, enemy.y + enemy.h * 0.45 + offsetY, enemy.w, enemy.h * 0.55, "#7f4f2f");
+        drawImageOrFallback(assets.goomba_squish || assets.goomba, x, screenY(enemy.y + enemy.h * 0.45, offsetY), enemy.w, enemy.h * 0.55, "#7f4f2f");
       } else {
-        drawImageOrFallback(assets.goomba, x, enemy.y + offsetY, enemy.w, enemy.h, "#7f4f2f");
+        drawImageOrFallback(assets.goomba, x, screenY(enemy.y, offsetY), enemy.w, enemy.h, "#7f4f2f");
       }
     }
   }
 
+  function getAirbornePlayerState(player) {
+    if (player.vy < -140) {
+      return "player_jump_rise";
+    }
+    if (player.vy < 120) {
+      return "player_jump_apex";
+    }
+    return "player_jump_fall";
+  }
+
+  function getPlayerDrawRect(sprite, player, drawX, drawY) {
+    if (!sprite || !isDrawableAsset(sprite.image)) {
+      return { x: drawX, y: drawY, w: player.w, h: player.h };
+    }
+
+    const frame = sprite.frame;
+    if (!frame) {
+      return { x: drawX, y: drawY, w: player.w, h: player.h };
+    }
+
+    const { width, height } = getDrawableSize(sprite.image);
+    const pivotX = Number(frame.pivotX);
+    const feetLockY = Number(frame.feetLockY ?? frame.pivotY);
+    if (!Number.isFinite(pivotX) || !Number.isFinite(feetLockY) || feetLockY <= 0) {
+      return { x: drawX, y: drawY, w: player.w, h: player.h };
+    }
+
+    const scale = player.h / feetLockY;
+    const footY = drawY + player.h;
+    const centerX = drawX + player.w * 0.5;
+    return {
+      x: Math.round(centerX - pivotX * scale),
+      y: Math.round(footY - feetLockY * scale),
+      w: Math.round(width * scale),
+      h: Math.round(height * scale)
+    };
+  }
+
+  function drawResolvedPlayerSprite(sprite, player, drawX, drawY) {
+    const image = sprite && sprite.image;
+    const rect = getPlayerDrawRect(sprite, player, drawX, drawY);
+
+    if (player.facing < 0) {
+      const axisX = drawX + player.w * 0.5;
+      ctx.translate(axisX * 2, 0);
+      ctx.scale(-1, 1);
+      drawImageOrFallback(image, rect.x, rect.y, rect.w, rect.h, "#3153e1");
+      return;
+    }
+
+    drawImageOrFallback(image, rect.x, rect.y, rect.w, rect.h, "#3153e1");
+  }
+
   function drawPlayer(offsetY) {
     const p = state.player;
-    const drawX = p.x - state.cameraX;
-    const drawY = p.y + offsetY;
+    const drawX = screenX(p.x);
+    const drawY = screenY(p.y, offsetY);
 
-    let image = assets.player_idle;
+    let sprite = resolvePlayerSprite("player_idle");
     const speed = Math.abs(p.vx);
     const skidding = !p.controlLocked && p.onGround && ((input.left && p.vx > 40) || (input.right && p.vx < -40));
 
     if (p.dead) {
-      image = assets.player_die;
+      sprite = resolvePlayerSprite("player_die", "player_jump", "player_idle");
+    } else if (state.flagCaptured && p.onGround && runtimeCapabilities.playerWin) {
+      sprite = resolvePlayerSprite("player_win", "player_idle");
     } else if (!p.onGround) {
-      image = assets.player_jump;
+      sprite = resolvePlayerSprite(getAirbornePlayerState(p), "player_jump", "player_idle");
     } else if (input.down && p.big) {
-      image = assets.player_duck;
+      sprite = resolvePlayerSprite("player_duck", "player_idle");
     } else if (skidding) {
-      image = assets.player_skid;
+      sprite = resolvePlayerSprite("player_run_stop", "player_skid", "player_idle");
     } else if (speed > 45) {
-      const frame = Math.floor(p.animT * 13) % 3;
-      image = frame === 0 ? assets.player_run_1 : (frame === 1 ? assets.player_run_2 : assets.player_run_3);
-    }
-
-    const flicker = p.invulnerable > 0 && Math.floor(state.flash) % 2 === 0;
-    if (flicker) {
-      return;
+      const cadence = 7 + (speed / RUN_SPEED) * 11;
+      const frame = Math.floor(p.animT * cadence) % 3;
+      sprite = resolvePlayerSprite(
+        frame === 0 ? "player_run_1" : (frame === 1 ? "player_run_2" : "player_run_3"),
+        "player_idle"
+      );
     }
 
     ctx.save();
-    if (p.facing < 0) {
-      ctx.translate(drawX + p.w, drawY);
-      ctx.scale(-1, 1);
-      drawImageOrFallback(image, 0, 0, p.w, p.h, "#3153e1");
-    } else {
-      drawImageOrFallback(image, drawX, drawY, p.w, p.h, "#3153e1");
+    ctx.globalAlpha = p.invulnerable > 0 ? 0.76 + Math.sin(state.flash * 2.6) * 0.16 : 1;
+    if (p.actionFlash > 0) {
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = alphaColor("#fff7c2", 0.72);
     }
+    drawResolvedPlayerSprite(sprite, p, drawX, drawY);
     ctx.restore();
   }
 
   function drawFloatingText(offsetY) {
-    ctx.font = "bold 16px Verdana";
+    ctx.font = '800 16px "Rubik", "Heebo", sans-serif';
     ctx.textAlign = "center";
     for (const msg of state.floating) {
+      const alpha = clamp(msg.t / Math.max(0.001, msg.life || 0.7), 0, 1);
+      const fontSize = Math.round((msg.size || 16) + (1 - alpha) * 4);
+      ctx.globalAlpha = alpha;
+      ctx.font = `800 ${fontSize}px "Rubik", "Heebo", sans-serif`;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "rgba(10, 18, 34, 0.4)";
+      ctx.strokeText(msg.text, screenX(msg.x), screenY(msg.y, offsetY));
       ctx.fillStyle = msg.color;
-      ctx.fillText(msg.text, msg.x - state.cameraX, msg.y + offsetY);
+      ctx.fillText(msg.text, screenX(msg.x), screenY(msg.y, offsetY));
     }
+    ctx.globalAlpha = 1;
     ctx.textAlign = "left";
   }
 
   function drawParticles(offsetY) {
     for (const p of state.particles) {
-      ctx.globalAlpha = clamp(p.life * 2, 0, 1);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(p.x - state.cameraX, p.y + offsetY, 4, 4);
+      const lifeRatio = clamp(p.life / Math.max(0.001, p.maxLife || p.life), 0, 1);
+      const x = screenX(p.x);
+      const y = screenY(p.y, offsetY);
+
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(p.rotation || 0);
+      ctx.globalAlpha = lifeRatio;
+      if (p.kind === "dust") {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, p.size, p.size * 0.58, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (p.kind === "ring") {
+        ctx.strokeStyle = p.outline || p.color;
+        ctx.lineWidth = Math.max(2, p.size * 0.16);
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (p.kind === "streak") {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size * 0.65, -1.5, p.size * 1.3, 3);
+      } else if (p.kind === "chunk") {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size * 0.5, -p.size * 0.5, p.size, p.size);
+      } else {
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.moveTo(0, -p.size);
+        ctx.lineTo(p.size * 0.44, 0);
+        ctx.lineTo(0, p.size);
+        ctx.lineTo(-p.size * 0.44, 0);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
     }
     ctx.globalAlpha = 1;
+  }
+
+  function drawStageBanner(viewW) {
+    if (state.stageBannerTimer <= 0 || !state.stageBannerTitle || state.mode === "title") {
+      return;
+    }
+
+    const t = state.stageBannerTimer / Math.max(0.001, state.stageBannerDuration);
+    let alpha = 1;
+    if (t > 0.86) {
+      alpha = (1 - t) / 0.14;
+    } else if (t < 0.24) {
+      alpha = t / 0.24;
+    }
+    alpha = clamp(alpha, 0, 1);
+
+    const theme = currentTheme();
+    const slide = (1 - alpha) * 18;
+    const panelW = Math.min(viewW * 0.82, 540);
+    const panelH = 96;
+    const panelX = (viewW - panelW) * 0.5;
+    const panelY = 26 + slide;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const panelGradient = ctx.createLinearGradient(panelX, panelY, panelX, panelY + panelH);
+    panelGradient.addColorStop(0, "rgba(13, 24, 48, 0.94)");
+    panelGradient.addColorStop(1, "rgba(10, 20, 40, 0.84)");
+    ctx.fillStyle = panelGradient;
+    ctx.fillRect(panelX, panelY, panelW, panelH);
+    ctx.fillStyle = alphaColor(theme.bannerGlow, 0.12);
+    ctx.fillRect(panelX + 14, panelY + 12, panelW - 28, panelH - 24);
+    ctx.strokeStyle = theme.bannerAccent;
+    ctx.lineWidth = 3;
+    ctx.strokeRect(panelX, panelY, panelW, panelH);
+
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff5a8";
+    ctx.font = '800 34px "Rubik", "Heebo", sans-serif';
+    ctx.fillText(state.stageBannerTitle, panelX + panelW * 0.5, panelY + 42);
+
+    if (state.stageBannerSubtitle) {
+      ctx.fillStyle = "#d9ecff";
+      ctx.font = '700 19px "Rubik", "Heebo", sans-serif';
+      ctx.fillText(state.stageBannerSubtitle, panelX + panelW * 0.5, panelY + 74);
+    }
+
+    ctx.restore();
   }
 
   function render() {
@@ -1563,24 +2455,48 @@
     drawFlagAndCastle(offsetY);
     drawItems(offsetY);
     drawEnemies(offsetY);
+    drawPlayerShadow(offsetY);
     drawParticles(offsetY);
     drawPlayer(offsetY);
     drawFloatingText(offsetY);
+    drawStageBanner(viewW);
   }
 
   function updateHud() {
-    hud.score.textContent = `ניקוד ${pad(state.score, 6)}`;
-    hud.coins.textContent = `מטבעות x${pad(state.coins, 2)}`;
-    hud.world.textContent = `עולם ${state.world}`;
-    hud.time.textContent = `זמן ${pad(Math.max(0, state.timeLeft), 3)}`;
-    hud.lives.textContent = `חיים x${state.lives}`;
+    hud.score.textContent = pad(state.score, 6);
+    hud.coins.textContent = `x${pad(state.coins, 2)}`;
+    hud.world.textContent = `${state.world} (${state.stageIndex + 1}/${STAGE_CONFIGS.length})`;
+    hud.time.textContent = pad(Math.max(0, state.timeLeft), 3);
+    hud.lives.textContent = `x${state.lives}`;
+  }
+
+  function getViewportBounds() {
+    const viewport = window.visualViewport;
+    return {
+      width: Math.max(320, Math.floor(viewport ? viewport.width : window.innerWidth)),
+      height: Math.max(320, Math.floor(viewport ? viewport.height : window.innerHeight))
+    };
+  }
+
+  function getChromeReserve() {
+    const hudHeight = hud.root && !hud.root.classList.contains("hidden")
+      ? Math.ceil(hud.root.getBoundingClientRect().height) + 18
+      : 0;
+    const touchVisible = ui.touch && window.getComputedStyle(ui.touch).display !== "none";
+    const touchHeight = touchVisible
+      ? Math.ceil(ui.touch.getBoundingClientRect().height) + 18
+      : 0;
+    return { top: hudHeight, bottom: touchHeight };
   }
 
   function resizeCanvas() {
-    const ratio = Math.max(1, window.devicePixelRatio || 1);
-    let cssW = window.innerWidth;
-    let cssH = window.innerHeight;
-    const targetAspect = window.innerHeight > window.innerWidth ? (4 / 3) : VIEW_ASPECT;
+    const ratio = Math.min(MAX_RENDER_RATIO, Math.max(1, window.devicePixelRatio || 1));
+    const viewport = getViewportBounds();
+    const reserve = getChromeReserve();
+    const chromeBand = Math.max(reserve.top, reserve.bottom);
+    let cssW = viewport.width;
+    let cssH = Math.max(260, viewport.height - chromeBand * 2);
+    const targetAspect = cssH > cssW ? clamp(cssW / cssH, 9 / 20, 9 / 16) : VIEW_ASPECT;
     const currentAspect = cssW / cssH;
 
     if (currentAspect > targetAspect) {
@@ -1594,7 +2510,8 @@
     canvas.width = Math.floor(cssW * ratio);
     canvas.height = Math.floor(cssH * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.imageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
   }
 
   let lastFrame = performance.now();
@@ -1630,6 +2547,10 @@
   async function init() {
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", resizeCanvas);
+      window.visualViewport.addEventListener("scroll", resizeCanvas);
+    }
 
     wireUi();
     setupInput();
