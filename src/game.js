@@ -14,13 +14,13 @@
   const GRAVITY = 1480;
   const MAX_FALL = 840;
 
-  const WALK_SPEED = 285;
-  const RUN_SPEED = 395;
-  const ACCEL_GROUND = 3200;
-  const ACCEL_AIR = 2200;
-  const FRICTION = 3300;
+  const WALK_SPEED = 300;
+  const RUN_SPEED = 425;
+  const ACCEL_GROUND = 3450;
+  const ACCEL_AIR = 2350;
+  const FRICTION = 3500;
 
-  const JUMP_VELOCITY = 950;
+  const JUMP_VELOCITY = 975;
   const BOUNCE_VELOCITY = 460;
   const COYOTE_TIME = 0.32;
   const JUMP_BUFFER = 0.34;
@@ -31,6 +31,8 @@
   const VIEW_ASPECT = 16 / 9;
   const VERTICAL_VIEW_PADDING = 24;
   const MAX_RENDER_RATIO = 3;
+  const CAMERA_FOLLOW = 6.6;
+  const CAMERA_LOOKAHEAD = 0.2;
   const PLAYER_FRAME_KEYS = [
     "player_idle",
     "player_run_1",
@@ -134,7 +136,7 @@
     return;
   }
 
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true }) || canvas.getContext("2d");
   if (!ctx) {
     showBootError("Canvas Error", "This browser cannot create a 2D canvas context.");
     return;
@@ -314,11 +316,11 @@
   }
 
   function screenX(worldX) {
-    return Math.round(worldX - state.renderCameraX);
+    return worldX - state.renderCameraX;
   }
 
   function screenY(worldY, offsetY) {
-    return Math.round(worldY + offsetY);
+    return worldY + offsetY;
   }
 
   function pushFloatingText(text, x, y, color, life = 0.75, options = {}) {
@@ -1480,7 +1482,7 @@
     state.player = createPlayer(state.checkpointX);
     state.player.invulnerable = 1.8;
     state.cameraX = clamp(state.checkpointX - canvas.clientWidth * 0.25, 0, Math.max(0, state.level.width - canvas.clientWidth));
-    state.renderCameraX = Math.round(state.cameraX);
+    state.renderCameraX = state.cameraX;
   }
 
   function keySet(code, down) {
@@ -1901,13 +1903,16 @@
   function updateCamera(dt) {
     const viewW = canvas.clientWidth;
     const p = state.player;
-    const target = p.x - viewW * 0.35;
+    const lookAhead = clamp(p.vx * CAMERA_LOOKAHEAD, -84, 132);
+    const forwardTarget = p.x + lookAhead - viewW * 0.36;
+    const keepPlayerVisibleTarget = p.x - viewW * 0.24;
     const maxCam = Math.max(0, state.level.width - viewW);
-    const nextCameraX = state.cameraX + (target - state.cameraX) * Math.min(1, dt * 5.5);
-    if (nextCameraX > state.cameraX) {
-      state.cameraX = clamp(nextCameraX, 0, maxCam);
-    }
-    state.renderCameraX = Math.round(state.cameraX);
+    const target = keepPlayerVisibleTarget < state.cameraX
+      ? keepPlayerVisibleTarget
+      : Math.max(state.cameraX, forwardTarget);
+    const follow = p.onGround ? CAMERA_FOLLOW : CAMERA_FOLLOW * 0.88;
+    state.cameraX = clamp(lerp(state.cameraX, target, Math.min(1, dt * follow)), 0, maxCam);
+    state.renderCameraX = state.cameraX;
   }
 
   function updateTimer(dt) {
@@ -1989,10 +1994,10 @@
   }
 
   function drawImageOrFallback(image, x, y, w, h, color) {
-    const drawX = Math.round(x);
-    const drawY = Math.round(y);
-    const drawW = Math.round(w);
-    const drawH = Math.round(h);
+    const drawX = x;
+    const drawY = y;
+    const drawW = Math.max(0, w);
+    const drawH = Math.max(0, h);
     if (image) {
       ctx.drawImage(image, drawX, drawY, drawW, drawH);
     } else {
@@ -2067,7 +2072,7 @@
       ctx.save();
       ctx.globalAlpha = 0.18;
       if (sky.width >= 256 && sky.height >= 256) {
-        const drift = Math.round((state.renderCameraX * 0.12) % viewW);
+        const drift = (state.renderCameraX * 0.12) % viewW;
         ctx.drawImage(sky, -drift, 0, viewW, viewH);
         ctx.drawImage(sky, viewW - drift, 0, viewW, viewH);
       } else {
@@ -2075,7 +2080,7 @@
         const sh = 64;
         for (let x = -((state.renderCameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
           for (let y = 0; y < viewH + sh; y += sh) {
-            ctx.drawImage(sky, Math.round(x), y, sw, sh);
+            ctx.drawImage(sky, x, y, sw, sh);
           }
         }
       }
@@ -2094,7 +2099,7 @@
     ctx.fillRect(0, horizon, viewW, 160);
 
     for (const cloud of state.level.sceneryClouds) {
-      const x = Math.round(cloud.x - state.renderCameraX * 0.45);
+      const x = cloud.x - state.renderCameraX * 0.45;
       const image = cloud.variant ? cloudAlt : cloudImg;
       ctx.save();
       ctx.globalAlpha = cloud.variant ? 0.74 : 0.88;
@@ -2104,7 +2109,7 @@
 
     if (hillImg) {
       for (let x = -220; x < viewW + 220; x += 290) {
-        const hillX = Math.round(x - (state.renderCameraX * 0.22 % 290));
+        const hillX = x - (state.renderCameraX * 0.22 % 290);
         const image = (Math.floor((x + state.stageIndex * 47) / 290) % 2 === 0 ? hillImg : hillAlt) || hillImg;
         ctx.save();
         ctx.globalAlpha = 0.94;
@@ -2114,7 +2119,7 @@
     }
 
     for (const bush of state.level.sceneryBushes) {
-      const x = Math.round(bush.x - state.renderCameraX * 0.78);
+      const x = bush.x - state.renderCameraX * 0.78;
       const image = bush.variant ? bushAlt : bushImg;
       ctx.save();
       ctx.globalAlpha = 0.92;
@@ -2270,10 +2275,10 @@
     const footY = drawY + player.h;
     const centerX = drawX + player.w * 0.5;
     return {
-      x: Math.round(centerX - pivotX * scale),
-      y: Math.round(footY - feetLockY * scale),
-      w: Math.round(width * scale),
-      h: Math.round(height * scale)
+      x: centerX - pivotX * scale,
+      y: footY - feetLockY * scale,
+      w: width * scale,
+      h: height * scale
     };
   }
 
