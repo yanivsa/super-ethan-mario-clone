@@ -14,6 +14,7 @@
   <canvas id="gameCanvas" aria-label="קנבס משחק סופר איתן"></canvas>
 
   <div id="hud" class="hud hidden" aria-live="polite" dir="rtl">
+    <button id="hudHelpBtn" class="hud-link" type="button">מקשים והוראות</button>
     <div class="hud-card">
       <span class="hud-label">ניקוד</span>
       <strong id="hudScore" class="hud-value">000000</strong>
@@ -37,7 +38,10 @@
   </div>
 
   <div id="titleScreen" class="overlay" dir="rtl">
-    <div class="overlay-card">
+    <div class="overlay-card title-card">
+      <div class="title-topbar">
+        <button id="startBtn" class="start-cta" type="button">התחל משחק</button>
+      </div>
       <img class="title-logo" src="assets/logo.png" alt="לוגו סופר איתן">
       <p class="eyebrow">פלטפורמר שכונתי מהיר בצבעוניות 2026</p>
       <h1>סופר איתן</h1>
@@ -49,7 +53,23 @@
         <li><span class="keycap">Shift</span><span>ריצה</span></li>
         <li><span class="keycap">S / ↓</span><span>התכופפות</span></li>
       </ul>
-      <button id="startBtn" type="button">התחל משחק</button>
+    </div>
+  </div>
+
+  <div id="helpScreen" class="overlay hidden" dir="rtl">
+    <div class="overlay-card compact help-card">
+      <div class="help-topbar">
+        <p class="eyebrow">עזרה מהירה</p>
+        <button id="closeHelpBtn" class="help-close" type="button">סגור</button>
+      </div>
+      <h1>מקשים</h1>
+      <p class="lead">אפשר לפתוח את חלון העזרה הזה גם תוך כדי המשחק מהכפתור העליון.</p>
+      <ul class="control-list help-list" aria-label="הוראות משחק">
+        <li><span class="keycap">A / D / ← →</span><span>תנועה</span></li>
+        <li><span class="keycap">Space / Z / ↑</span><span>קפיצה</span></li>
+        <li><span class="keycap">Shift</span><span>ריצה</span></li>
+        <li><span class="keycap">S / ↓</span><span>התכופפות</span></li>
+      </ul>
     </div>
   </div>
 

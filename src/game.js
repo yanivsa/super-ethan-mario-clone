@@ -155,9 +155,12 @@
 
   const ui = {
     title: document.getElementById("titleScreen"),
+    help: document.getElementById("helpScreen"),
     gameOver: document.getElementById("gameOverScreen"),
     win: document.getElementById("winScreen"),
     startBtn: document.getElementById("startBtn"),
+    helpBtn: document.getElementById("hudHelpBtn"),
+    closeHelpBtn: document.getElementById("closeHelpBtn"),
     retryBtn: document.getElementById("retryBtn"),
     againBtn: document.getElementById("againBtn"),
     touch: document.getElementById("touchControls")
@@ -184,7 +187,7 @@
   }
 
   function isGameplayInputLocked() {
-    if (state.mode !== "playing") {
+    if (state.mode !== "playing" || state.helpOpen) {
       return true;
     }
     return Boolean(state.player && state.player.controlLocked);
@@ -288,7 +291,8 @@
     stageBannerSubtitle: "",
     stageBannerTimer: 0,
     stageBannerDuration: 0,
-    renderCameraX: 0
+    renderCameraX: 0,
+    helpOpen: false
   };
 
   function clamp(v, min, max) {
@@ -1227,9 +1231,19 @@
       animT: 0,
       runFxTimer: 0,
       skidFxTimer: 0,
+      crouching: false,
       actionFlash: 0,
       dead: false
     };
+  }
+
+  function setHelpOpen(open) {
+    const next = Boolean(open);
+    state.helpOpen = next;
+    ui.help.classList.toggle("hidden", !next);
+    if (next) {
+      resetInputState();
+    }
   }
 
   function getVisibleSolidRects(level, x, y, w, h) {
@@ -1456,6 +1470,7 @@
   function startGame() {
     state.mode = "playing";
     resetInputState();
+    setHelpOpen(false);
     state.score = 0;
     state.coins = 0;
     state.lives = START_LIVES;
@@ -1516,6 +1531,16 @@
 
   function setupInput() {
     window.addEventListener("keydown", (event) => {
+      if (event.code === "Escape" && state.helpOpen) {
+        setHelpOpen(false);
+        event.preventDefault();
+        return;
+      }
+      if (event.code === "KeyH" && state.mode === "playing") {
+        setHelpOpen(!state.helpOpen);
+        event.preventDefault();
+        return;
+      }
       unlockAudio();
       keySet(event.code, true);
       if (["ArrowLeft", "ArrowRight", "ArrowDown", "ArrowUp", "Space"].includes(event.code)) {
@@ -1607,10 +1632,12 @@
     }
 
     if (!p.controlLocked) {
-      const dir = (input.left ? -1 : 0) + (input.right ? 1 : 0);
+      const wantsCrouch = p.onGround && input.down;
+      const dir = wantsCrouch ? 0 : ((input.left ? -1 : 0) + (input.right ? 1 : 0));
       const topSpeed = input.run ? RUN_SPEED : WALK_SPEED;
-      const target = dir * topSpeed;
+      const target = dir * (wantsCrouch ? 0 : topSpeed);
       const accel = p.onGround ? ACCEL_GROUND : ACCEL_AIR;
+      p.crouching = wantsCrouch;
 
       if (dir !== 0) {
         p.facing = dir;
@@ -1650,7 +1677,7 @@
 
       const canGroundJump = p.onGround || p.coyote > 0;
       const canDoubleJump = !canGroundJump && p.jumpCount === 1;
-      if (p.jumpBuffer > 0 && (canGroundJump || canDoubleJump)) {
+      if (p.jumpBuffer > 0 && (canGroundJump || canDoubleJump) && !wantsCrouch) {
         p.vy = canDoubleJump ? -JUMP_VELOCITY * 0.96 : -JUMP_VELOCITY;
         p.onGround = false;
         p.jumpBuffer = 0;
@@ -1663,6 +1690,8 @@
       if (input.jumpReleased && p.vy < -280) {
         p.vy *= 0.62;
       }
+    } else {
+      p.crouching = false;
     }
 
     p.vy = clamp(p.vy + GRAVITY * dt, -1200, MAX_FALL);
@@ -1730,6 +1759,7 @@
       pushFloatingText("נקודת שמירה", p.x + 12, p.y - 14, "#b7ebff", 1, { size: 18 });
     }
 
+    p.crouching = !p.controlLocked && p.onGround && input.down;
     p.animT += dt;
   }
 
@@ -1946,6 +1976,12 @@
     updateStageBanner(dt);
 
     if (state.mode === "title" || state.mode === "gameover" || state.mode === "win") {
+      input.jumpPressed = false;
+      input.jumpReleased = false;
+      return;
+    }
+
+    if (state.helpOpen) {
       input.jumpPressed = false;
       input.jumpReleased = false;
       return;
@@ -2312,7 +2348,7 @@
       sprite = resolvePlayerSprite("player_win", "player_idle");
     } else if (!p.onGround) {
       sprite = resolvePlayerSprite(getAirbornePlayerState(p), "player_jump", "player_idle");
-    } else if (input.down && p.big) {
+    } else if (p.crouching) {
       sprite = resolvePlayerSprite("player_duck", "player_idle");
     } else if (skidding) {
       sprite = resolvePlayerSprite("player_run_stop", "player_skid", "player_idle");
@@ -2537,13 +2573,22 @@
       unlockAudio();
       startGame();
     });
+    ui.helpBtn.addEventListener("click", () => {
+      unlockAudio();
+      setHelpOpen(true);
+    });
+    ui.closeHelpBtn.addEventListener("click", () => {
+      setHelpOpen(false);
+    });
     ui.retryBtn.addEventListener("click", () => {
       unlockAudio();
+      setHelpOpen(false);
       ui.gameOver.classList.add("hidden");
       startGame();
     });
     ui.againBtn.addEventListener("click", () => {
       unlockAudio();
+      setHelpOpen(false);
       ui.win.classList.add("hidden");
       startGame();
     });
@@ -2564,6 +2609,7 @@
     loadStage(0);
     state.mode = "title";
 
+    setHelpOpen(false);
     hud.root.classList.add("hidden");
     requestAnimationFrame(loop);
   }

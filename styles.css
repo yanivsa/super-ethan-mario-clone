@@ -95,6 +95,23 @@ body::after {
   padding: 0 var(--safe-left) 0 var(--safe-right);
 }
 
+.hud-link {
+  grid-column: 1 / -1;
+  justify-self: end;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, rgba(97, 228, 255, 0.96), rgba(255, 210, 91, 0.96));
+  color: #17304f;
+  font-family: "Rubik", "Heebo", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(7, 17, 34, 0.16);
+}
+
 .hud-card {
   min-width: 112px;
   padding: 10px 14px 11px;
@@ -161,6 +178,27 @@ body::after {
 
 .overlay-card.compact {
   width: min(90vw, 560px);
+}
+
+.title-card {
+  display: grid;
+  gap: 12px;
+}
+
+.title-topbar,
+.help-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.title-topbar {
+  justify-content: center;
+}
+
+.start-cta {
+  margin-top: 0;
 }
 
 .eyebrow {
@@ -259,6 +297,8 @@ body::after {
 
 .overlay button:hover,
 .overlay button:focus-visible,
+.hud-link:hover,
+.hud-link:focus-visible,
 .touch-controls button:hover,
 .touch-controls button:focus-visible {
   transform: translateY(-1px);
@@ -267,6 +307,7 @@ body::after {
 }
 
 .overlay button:focus-visible,
+.hud-link:focus-visible,
 .touch-controls button:focus-visible {
   border-color: var(--line-strong);
   box-shadow:
@@ -277,6 +318,21 @@ body::after {
 .overlay button:active,
 .touch-controls button:active {
   transform: translateY(1px) scale(0.985);
+}
+
+.help-card h1 {
+  font-size: clamp(32px, 6vw, 48px);
+}
+
+.help-list {
+  margin-top: 8px;
+}
+
+.help-close {
+  margin-top: 0;
+  padding: 10px 18px;
+  font-size: 15px;
+  box-shadow: 0 10px 20px rgba(6, 16, 30, 0.18);
 }
 
 .touch-controls {
@@ -329,6 +385,11 @@ body::after {
     border-radius: 14px;
   }
 
+  .hud-link {
+    width: 100%;
+    justify-self: stretch;
+  }
+
   .hud-value {
     font-size: clamp(14px, 2.8vw, 16px);
   }
@@ -358,6 +419,12 @@ body::after {
   .overlay-card {
     padding: 24px 18px;
     border-radius: 24px;
+  }
+
+  .title-topbar,
+  .help-topbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .lead {
