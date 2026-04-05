@@ -1,0 +1,6 @@
+<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+<rect x="18" y="24" width="28" height="30" fill="#2F4F4F"/>
+<path d="M14,24 Q32,-10 50,24 L32,44 Z" fill="#FF1493"/> <!-- Mask -->
+<circle cx="26" cy="22" r="3" fill="#FFF"/>
+<circle cx="38" cy="22" r="3" fill="#FFF"/>
+</svg>

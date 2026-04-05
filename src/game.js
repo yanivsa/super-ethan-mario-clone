@@ -47,75 +47,218 @@
   const PIPE_TILE_COLUMNS = [22, 29, 37, 46, 61, 78, 110, 130, 170];
   const STAGE_CONFIGS = [
     {
-      world: "1-1",
-      time: 500,
+      world: "פסח",
+      title: "פסח: דרך היציאה",
+      subtitle: "ברחו מחצר פרעה והתקדמו אל שער החירות",
+      hudFocus: "בריחה, מצות ושומרים",
+      goalLabel: "שער החירות",
+      backdropStyle: "pyramids",
+      goalStyle: "exodus",
+      tileStyle: "matzah",
+      enemyStyle: "pharaoh",
+      brittleBricks: true,
+      time: 480,
       pitRanges: [[30, 30], [49, 49], [87, 87], [142, 142], [174, 174], [198, 198]],
       enemyTiles: [[55, 10], [126, 10], [188, 10]],
       enemySpeed: 42,
       pipeHeights: [2, 2, 2, 2, 2, 2, 2, 2, 2],
       theme: {
-        skyTop: "#9cdeff",
-        skyMid: "#67b9ff",
-        skyBottom: "#2767c3",
-        haze: "#fef4c7",
-        bannerAccent: "#ffd25b",
-        bannerGlow: "#ff9340",
-        hillTint: "rgba(130, 212, 113, 0.32)",
-        bushTint: "rgba(59, 183, 117, 0.16)"
+        skyTop: "#f7d69a",
+        skyMid: "#dca760",
+        skyBottom: "#8b5b2d",
+        haze: "#fff0bf",
+        bannerAccent: "#ffd77a",
+        bannerGlow: "#ff9a3d",
+        hillTint: "rgba(211, 169, 93, 0.28)",
+        bushTint: "rgba(151, 105, 46, 0.18)"
       }
     },
     {
-      world: "1-2",
-      time: 420,
+      world: "ראש השנה",
+      title: "ראש השנה: שער השופר",
+      subtitle: "פתחו את שער השנה החדשה בתזמון מדויק",
+      hudFocus: "שערים, זמן ותקיעות",
+      goalLabel: "שער השנה",
+      backdropStyle: "gate",
+      goalStyle: "shofar",
+      tileStyle: "honey",
+      enemyStyle: "gatekeeper",
+      time: 430,
       pitRanges: [[28, 29], [47, 48], [84, 85], [140, 141], [172, 173], [196, 197]],
       enemyTiles: [[50, 10], [74, 10], [124, 10], [156, 10], [186, 10]],
-      enemySpeed: 50,
+      enemySpeed: 48,
       pipeHeights: [2, 2, 3, 2, 3, 2, 3, 2, 2],
       theme: {
-        skyTop: "#9ff1ff",
-        skyMid: "#46c6f8",
-        skyBottom: "#1767a2",
-        haze: "#fff0bf",
-        bannerAccent: "#61e4ff",
-        bannerGlow: "#1dc4ff",
-        hillTint: "rgba(162, 220, 118, 0.28)",
-        bushTint: "rgba(76, 190, 123, 0.18)"
+        skyTop: "#fff2cf",
+        skyMid: "#ffd56a",
+        skyBottom: "#b36f2d",
+        haze: "#fff9e2",
+        bannerAccent: "#fff0a8",
+        bannerGlow: "#ffb34c",
+        hillTint: "rgba(248, 220, 126, 0.22)",
+        bushTint: "rgba(197, 130, 56, 0.16)"
       }
     },
     {
-      world: "1-3",
-      time: 340,
+      world: "חנוכה",
+      title: "חנוכה: מבצר הנרות",
+      subtitle: "הדליקו אור בתוך העיר הקפואה והמשיכו קדימה",
+      hudFocus: "אור מול חושך",
+      goalLabel: "המנורה הגדולה",
+      backdropStyle: "menorah-city",
+      goalStyle: "menorah",
+      tileStyle: "ember",
+      enemyStyle: "flameguard",
+      darkness: 0.44,
+      time: 380,
       pitRanges: [[26, 28], [45, 47], [81, 83], [136, 138], [168, 170], [193, 195], [207, 208]],
       enemyTiles: [[42, 10], [68, 10], [92, 10], [118, 10], [146, 10], [176, 10], [204, 10]],
-      enemySpeed: 58,
+      enemySpeed: 56,
       pipeHeights: [2, 3, 3, 2, 3, 3, 3, 2, 3],
       theme: {
-        skyTop: "#ffcc97",
-        skyMid: "#ff8f63",
-        skyBottom: "#7a3a8d",
-        haze: "#ffe0a3",
-        bannerAccent: "#ffbf5a",
-        bannerGlow: "#ff6e5d",
-        hillTint: "rgba(255, 188, 109, 0.18)",
-        bushTint: "rgba(158, 205, 114, 0.16)"
+        skyTop: "#1e2f6d",
+        skyMid: "#274d9f",
+        skyBottom: "#0c1637",
+        haze: "#8ee0ff",
+        bannerAccent: "#9aeaff",
+        bannerGlow: "#3fcfff",
+        hillTint: "rgba(93, 132, 218, 0.18)",
+        bushTint: "rgba(51, 113, 180, 0.14)"
       }
     },
     {
-      world: "1-4",
-      time: 280,
-      pitRanges: [[24, 27], [42, 45], [78, 81], [132, 135], [162, 165], [188, 191], [206, 209]],
+      world: "ט\"ו בשבט",
+      title: "ט\"ו בשבט: גינת הנבטים",
+      subtitle: "הצמיחו את הדרך דרך בוסתן מתעורר",
+      hudFocus: "צמיחה, שורשים ופריחה",
+      goalLabel: "שער הבוסתן",
+      backdropStyle: "orchard",
+      goalStyle: "orchard",
+      tileStyle: "blossom",
+      enemyStyle: "leafling",
+      time: 360,
+      pitRanges: [[24, 26], [42, 44], [78, 80], [132, 134], [162, 164], [188, 190], [206, 208]],
       enemyTiles: [[36, 10], [58, 10], [84, 10], [112, 10], [140, 10], [166, 10], [194, 10], [214, 10]],
-      enemySpeed: 66,
+      enemySpeed: 60,
       pipeHeights: [3, 3, 3, 2, 3, 3, 3, 3, 3],
       theme: {
-        skyTop: "#1d3163",
-        skyMid: "#274b91",
-        skyBottom: "#0f1a34",
-        haze: "#7ed5ff",
-        bannerAccent: "#8ce7ff",
-        bannerGlow: "#3ac6ff",
-        hillTint: "rgba(70, 112, 184, 0.16)",
-        bushTint: "rgba(49, 113, 121, 0.14)"
+        skyTop: "#def7c8",
+        skyMid: "#8dd77a",
+        skyBottom: "#4b7f36",
+        haze: "#fff1d9",
+        bannerAccent: "#ffd08a",
+        bannerGlow: "#ff8a67",
+        hillTint: "rgba(121, 196, 100, 0.24)",
+        bushTint: "rgba(67, 140, 74, 0.17)"
+      }
+    },
+    {
+      world: "סוכות",
+      title: "סוכות: יער הסוכות",
+      subtitle: "מצאו מחסה בין הרוחות והגשרים המתנדנדים",
+      hudFocus: "מחסה ורוחות",
+      goalLabel: "סוכת האורחים",
+      backdropStyle: "sukkah-forest",
+      goalStyle: "sukkah",
+      tileStyle: "reed",
+      enemyStyle: "windling",
+      windStrength: 118,
+      time: 340,
+      pitRanges: [[24, 27], [42, 45], [78, 81], [132, 135], [162, 165], [188, 191], [206, 209]],
+      enemyTiles: [[36, 10], [52, 10], [84, 10], [112, 10], [138, 10], [162, 10], [194, 10], [214, 10]],
+      enemySpeed: 64,
+      pipeHeights: [2, 3, 2, 2, 3, 2, 3, 2, 3],
+      theme: {
+        skyTop: "#b7f0d5",
+        skyMid: "#67c88c",
+        skyBottom: "#336a45",
+        haze: "#eef9db",
+        bannerAccent: "#ffe89a",
+        bannerGlow: "#8ccf5e",
+        hillTint: "rgba(108, 175, 95, 0.25)",
+        bushTint: "rgba(63, 122, 66, 0.18)"
+      }
+    },
+    {
+      world: "פורים",
+      title: "פורים: מגילת הצללים",
+      subtitle: "צלחו את עיר המסכות והביסו את גזרת הצל",
+      hudFocus: "מסכות והיפוכים",
+      goalLabel: "שער הארמון",
+      backdropStyle: "palace",
+      goalStyle: "palace",
+      tileStyle: "confetti",
+      enemyStyle: "masked",
+      enemyFlipInterval: 3.6,
+      time: 320,
+      pitRanges: [[22, 25], [40, 43], [74, 77], [126, 129], [154, 157], [182, 185], [203, 206]],
+      enemyTiles: [[34, 10], [56, 10], [78, 10], [106, 10], [134, 10], [162, 10], [190, 10], [212, 10]],
+      enemySpeed: 68,
+      pipeHeights: [2, 2, 3, 2, 3, 3, 2, 3, 2],
+      theme: {
+        skyTop: "#5f2b86",
+        skyMid: "#b34f9d",
+        skyBottom: "#2a163e",
+        haze: "#ffd7ad",
+        bannerAccent: "#ffcf7a",
+        bannerGlow: "#ff73b7",
+        hillTint: "rgba(183, 91, 150, 0.18)",
+        bushTint: "rgba(109, 50, 99, 0.15)"
+      }
+    },
+    {
+      world: "שבועות",
+      title: "שבועות: הר סיני",
+      subtitle: "עלו אל הפסגה דרך עננים, חיטה וברקים",
+      hudFocus: "פסגה, ברקים וחכמה",
+      goalLabel: "הלוחות",
+      backdropStyle: "sinai",
+      goalStyle: "tablets",
+      tileStyle: "floral",
+      enemyStyle: "storm",
+      lightningFlash: true,
+      time: 300,
+      pitRanges: [[20, 23], [38, 41], [72, 75], [120, 123], [150, 153], [176, 179], [198, 201], [214, 216]],
+      enemyTiles: [[32, 10], [52, 10], [72, 10], [94, 10], [118, 10], [146, 10], [176, 10], [206, 10]],
+      enemySpeed: 72,
+      pipeHeights: [2, 3, 2, 3, 2, 3, 2, 3, 2],
+      theme: {
+        skyTop: "#f8fdff",
+        skyMid: "#a7d9ff",
+        skyBottom: "#4e78a5",
+        haze: "#fff4de",
+        bannerAccent: "#fff6ba",
+        bannerGlow: "#92d2ff",
+        hillTint: "rgba(174, 213, 244, 0.2)",
+        bushTint: "rgba(122, 162, 196, 0.15)"
+      }
+    },
+    {
+      world: "שמחת תורה",
+      title: "שמחת תורה: מעגל התורה",
+      subtitle: "חברו את כל המוטיבים והשלימו את מחזור השנה",
+      hudFocus: "מבחן סיכום חגיגי",
+      goalLabel: "מעגל התורה",
+      backdropStyle: "scroll-city",
+      goalStyle: "scroll",
+      tileStyle: "scroll",
+      enemyStyle: "scroll",
+      windStrength: 46,
+      enemyFlipInterval: 4.2,
+      time: 280,
+      pitRanges: [[18, 22], [36, 40], [68, 72], [110, 114], [142, 146], [170, 174], [196, 200], [214, 217]],
+      enemyTiles: [[28, 10], [46, 10], [66, 10], [88, 10], [112, 10], [138, 10], [166, 10], [194, 10], [218, 10]],
+      enemySpeed: 76,
+      pipeHeights: [3, 2, 3, 3, 2, 3, 3, 2, 3],
+      theme: {
+        skyTop: "#1d255d",
+        skyMid: "#47398d",
+        skyBottom: "#120f29",
+        haze: "#ffe59d",
+        bannerAccent: "#ffd86b",
+        bannerGlow: "#ff9c5d",
+        hillTint: "rgba(108, 94, 196, 0.18)",
+        bushTint: "rgba(72, 60, 136, 0.16)"
       }
     }
   ];
@@ -149,6 +292,7 @@
     score: document.getElementById("hudScore"),
     coins: document.getElementById("hudCoins"),
     world: document.getElementById("hudWorld"),
+    objective: document.getElementById("hudObjective"),
     time: document.getElementById("hudTime"),
     lives: document.getElementById("hudLives")
   };
@@ -158,6 +302,8 @@
     help: document.getElementById("helpScreen"),
     gameOver: document.getElementById("gameOverScreen"),
     win: document.getElementById("winScreen"),
+    winTitle: document.getElementById("winTitle"),
+    winLead: document.getElementById("winLead"),
     startBtn: document.getElementById("startBtn"),
     helpBtn: document.getElementById("hudHelpBtn"),
     closeHelpBtn: document.getElementById("closeHelpBtn"),
@@ -227,7 +373,34 @@
     hill_alt: "assets/scenery/hill_1.svg",
     pipe_top: "assets/scenery/pipe_top.svg",
     pipe_body: "assets/scenery/pipe_body.svg",
-    heart: "assets/ui/heart.svg"
+    heart: "assets/ui/heart.svg",
+    // === Holiday-specific backgrounds (used directly in drawBackground) ===
+    bg_pesach: "assets/holidays/pesach/bg_pyramids_far.png",
+    bg_rosh_hashanah: "assets/holidays/rosh_hashanah/bg_dawn_city.png",
+    bg_chanukah: "assets/holidays/chanukah/bg_night_city.png",
+    bg_tu_bishvat: "assets/holidays/tu_bishvat/bg_orchard_far.png",
+    bg_sukkot: "assets/holidays/sukkot/bg_forest_canopy.png",
+    bg_purim: "assets/holidays/purim/bg_persian_palace.png",
+    bg_shavuot: "assets/holidays/shavuot/bg_sinai_far.png",
+    bg_simchat_torah: "assets/holidays/simchat_torah/bg_scroll_city.png",
+    // === Holiday tile textures ===
+    tile_matzah: "assets/holidays/pesach/tiles_matzah_brick.svg",
+    tile_honey: "assets/holidays/rosh_hashanah/tiles_honey_block.svg",
+    tile_ember: "assets/holidays/chanukah/tiles_ember_brick.svg",
+    tile_blossom: "assets/holidays/tu_bishvat/tiles_blossom_brick.svg",
+    tile_reed: "assets/holidays/sukkot/tiles_reed_brick.svg",
+    tile_confetti: "assets/holidays/purim/tiles_confetti_brick.svg",
+    tile_floral: "assets/holidays/shavuot/tiles_floral_brick.svg",
+    tile_scroll: "assets/holidays/simchat_torah/tiles_scroll_brick.svg",
+    // === Holiday enemy skins ===
+    enemy_pharaoh: "assets/holidays/pesach/enemy_palace_guard.svg",
+    enemy_gatekeeper: "assets/holidays/rosh_hashanah/enemy_gatekeeper.svg",
+    enemy_flameguard: "assets/holidays/chanukah/enemy_shadow_guard.svg",
+    enemy_leafling: "assets/holidays/tu_bishvat/enemy_thorn_bug.svg",
+    enemy_windling: "assets/holidays/sukkot/enemy_wind_spirit.svg",
+    enemy_masked: "assets/holidays/purim/enemy_masked_guard.svg",
+    enemy_storm: "assets/holidays/shavuot/enemy_storm_cloud.svg",
+    enemy_scroll: "assets/holidays/simchat_torah/enemy_scroll_guard.svg"
   };
 
   const manifestPath = {
@@ -292,7 +465,9 @@
     stageBannerTimer: 0,
     stageBannerDuration: 0,
     renderCameraX: 0,
-    helpOpen: false
+    helpOpen: false,
+    stageAmbientTimer: 0,
+    enemyFlipTimer: 0
   };
 
   function clamp(v, min, max) {
@@ -315,8 +490,12 @@
     return `rgba(${color.r}, ${color.g}, ${color.b}, ${clamp(alpha, 0, 1)})`;
   }
 
+  function currentStageInfo() {
+    return state.stageConfig || STAGE_CONFIGS[0];
+  }
+
   function currentTheme() {
-    return (state.stageConfig && state.stageConfig.theme) || STAGE_CONFIGS[0].theme;
+    return currentStageInfo().theme || STAGE_CONFIGS[0].theme;
   }
 
   function screenX(worldX) {
@@ -1301,7 +1480,8 @@
         }
       }
     } else if (tile.type === "brick") {
-      if (state.player.big) {
+      const brittleBricks = Boolean(currentStageInfo().brittleBricks);
+      if (state.player.big || brittleBricks) {
         state.level.tiles[solid.ty][solid.tx] = null;
         state.score += 50;
         pushFloatingText("+50", worldX, worldY - 6, "#ffc8a2", 0.7);
@@ -1313,7 +1493,7 @@
             vx: (Math.random() * 180) - 90,
             vy: -220 - Math.random() * 120,
             life: 0.5,
-            color: "#c14f35",
+            color: brittleBricks ? "#e5c67d" : "#c14f35",
             size: 7,
             gravity: GRAVITY * 0.42,
             shrink: 8,
@@ -1412,14 +1592,14 @@
     pushFloatingText("כוח על!", p.x + 20, p.y - 10, "#c5ff85", 1.0, { size: 18 });
   }
 
-  function showStageBanner(title, subtitle = "", duration = 2.3) {
+  function showStageBanner(title, subtitle = "", duration = 2.6) {
     state.stageBannerTitle = title;
     state.stageBannerSubtitle = subtitle;
     state.stageBannerDuration = duration;
     state.stageBannerTimer = duration;
   }
 
-  function loadStage(stageIndex, bannerTitle = "") {
+  function loadStage(stageIndex, bannerTitle = "", bannerSubtitle = "") {
     const safeIndex = clamp(stageIndex, 0, STAGE_CONFIGS.length - 1);
     const stage = STAGE_CONFIGS[safeIndex];
 
@@ -1440,19 +1620,28 @@
     state.items = [];
     state.floating = [];
     state.particles = [];
+    state.stageAmbientTimer = 0;
+    state.enemyFlipTimer = stage.enemyFlipInterval || 0;
     state.flagPoleX = 224 * TILE;
     state.castleX = 230 * TILE;
 
     initialEnemyLayout(stage);
     initialCoinsLayout();
 
-    const stageTitle = bannerTitle || `שלב ${stage.world}`;
-    showStageBanner(stageTitle, `זמן לשלב: ${stage.time}`, 2.4);
+    const stageTitle = bannerTitle || stage.title || `שלב ${stage.world}`;
+    const stageSubtitle = bannerSubtitle || stage.subtitle || `זמן לשלב: ${stage.time}`;
+    showStageBanner(stageTitle, stageSubtitle, 2.8);
   }
 
   function advanceToNextStage() {
     if (state.stageIndex >= STAGE_CONFIGS.length - 1) {
       state.mode = "win";
+      if (ui.winTitle) {
+        ui.winTitle.textContent = "מעגל השנה חזר";
+      }
+      if (ui.winLead) {
+        ui.winLead.textContent = `איתן השלים את כל ${STAGE_CONFIGS.length} חגי המסע, חיבר מחדש את העולמות, והחזיר את השנה למסלולה.`;
+      }
       ui.win.classList.remove("hidden");
       return;
     }
@@ -1460,11 +1649,11 @@
     const timeBonus = Math.max(0, state.timeLeft) * 5;
     state.score += 2500 + timeBonus;
     const nextStage = STAGE_CONFIGS[state.stageIndex + 1];
-    loadStage(state.stageIndex + 1, `מעבר לשלב ${nextStage.world}!`);
+    loadStage(state.stageIndex + 1, `החג הבא: ${nextStage.world}`, nextStage.subtitle);
     state.mode = "playing";
     state.player.invulnerable = 1.2;
     state.player.actionFlash = 0.45;
-    pushFloatingText("שלב הושלם!", state.player.x + 70, state.player.y - 18, "#fff5a8", 1.2, { size: 20, rise: 28 });
+    pushFloatingText(`${state.world} הושלם!`, state.player.x + 70, state.player.y - 18, "#fff5a8", 1.2, { size: 20, rise: 28 });
   }
 
   function startGame() {
@@ -1474,7 +1663,7 @@
     state.score = 0;
     state.coins = 0;
     state.lives = START_LIVES;
-    loadStage(0, `מתחילים: ${STAGE_CONFIGS[0].world}`);
+    loadStage(0, `מתחילים: ${STAGE_CONFIGS[0].title}`, STAGE_CONFIGS[0].subtitle);
     state.mode = "playing";
 
     ui.title.classList.add("hidden");
@@ -1731,11 +1920,12 @@
     if (!state.flagCaptured) {
       const flagRect = { x: state.flagPoleX, y: (GROUND_ROW - 5) * TILE, w: 16, h: 6 * TILE };
       if (overlap(p, flagRect)) {
+        const stage = currentStageInfo();
         state.flagCaptured = true;
         state.score += 5000;
         p.actionFlash = 0.42;
         emitPickupBurst(p.x + p.w * 0.5, p.y + 8, ["#fff5a8", "#61e4ff", "#ffd25b"]);
-        pushFloatingText("דגל +5000", p.x, p.y - 20, "#fff5a8", 1.2, { size: 20, rise: 28 });
+        pushFloatingText(`${stage.goalLabel} +5000`, p.x, p.y - 20, "#fff5a8", 1.2, { size: 20, rise: 28 });
       }
     } else if (p.x > state.castleX + TILE * 1.5 && state.mode === "playing") {
       advanceToNextStage();
@@ -1968,6 +2158,52 @@
     }
   }
 
+  function emitWindStroke() {
+    const p = state.player;
+    emitParticle({
+      kind: "streak",
+      x: p.x + p.w * 0.5 + (Math.random() * 60 - 30),
+      y: p.y + p.h * (0.25 + Math.random() * 0.45),
+      vx: 12 + Math.random() * 42,
+      vy: -12 + Math.random() * 24,
+      gravity: 0,
+      life: 0.18 + Math.random() * 0.12,
+      color: "#eef9db",
+      size: 10 + Math.random() * 8,
+      shrink: 14
+    });
+  }
+
+  function updateStageEffects(dt) {
+    const stage = currentStageInfo();
+    const p = state.player;
+    state.stageAmbientTimer += dt;
+
+    if (stage.windStrength && state.mode === "playing" && !p.controlLocked) {
+      const gust = Math.sin(state.stageAmbientTimer * 1.75) * stage.windStrength;
+      const airFactor = p.onGround ? 0.08 : 0.2;
+      p.vx = clamp(p.vx + gust * dt * airFactor, -RUN_SPEED * 1.18, RUN_SPEED * 1.18);
+      if (Math.abs(gust) > stage.windStrength * 0.78 && Math.random() < 0.22) {
+        emitWindStroke();
+      }
+    }
+
+    if (stage.enemyFlipInterval && state.mode === "playing") {
+      state.enemyFlipTimer -= dt;
+      if (state.enemyFlipTimer <= 0) {
+        state.enemyFlipTimer = stage.enemyFlipInterval;
+        for (const enemy of state.enemies) {
+          if (enemy.dead) {
+            continue;
+          }
+          enemy.dir = -(enemy.dir || Math.sign(enemy.vx) || -1);
+          enemy.vx = enemy.dir * (enemy.speed || 42);
+        }
+        pushFloatingText("המסכות מתהפכות!", p.x + 48, p.y - 28, "#ffd7ad", 0.9, { size: 18, rise: 26 });
+      }
+    }
+  }
+
   function update(dt) {
     if (!state.level || !state.player) {
       return;
@@ -2003,6 +2239,7 @@
     }
 
     updateTiles(dt);
+    updateStageEffects(dt);
     updatePlayer(dt);
     updateEnemies(dt);
     updateItems(dt);
@@ -2022,10 +2259,16 @@
   function getTileImage(type) {
     if (type === "ground") return assets.tile_ground;
     if (type === "dirt") return assets.tile_dirt;
-    if (type === "brick") return assets.tile_brick;
     if (type === "qblock") return assets.tile_qblock;
     if (type === "empty") return assets.tile_empty;
     if (type === "hard") return assets.tile_hard;
+    // For brick tiles, pick the holiday-specific texture if available
+    if (type === "brick") {
+      const tStyle = currentStageInfo().tileStyle;
+      const key = `tile_${tStyle}`;
+      if (tStyle && assets[key]) return assets[key];
+      return assets.tile_brick;
+    }
     return null;
   }
 
@@ -2087,39 +2330,368 @@
     ctx.restore();
   }
 
-  function drawBackground(viewW, viewH, offsetY) {
+  function drawBackdropTriangle(x, y, base, height, fill, stroke = null) {
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + base * 0.5, y - height);
+    ctx.lineTo(x + base, y);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    if (stroke) {
+      ctx.strokeStyle = stroke;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  }
+
+  function drawStageLandmark(viewW, viewH, offsetY) {
+    const stage = currentStageInfo();
     const theme = currentTheme();
-    const sky = assets.sky_hq || assets.sky;
-    const gradient = ctx.createLinearGradient(0, 0, 0, viewH);
-    gradient.addColorStop(0, theme.skyTop);
-    gradient.addColorStop(0.56, theme.skyMid);
-    gradient.addColorStop(1, theme.skyBottom);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, viewW, viewH);
+    const horizonY = screenY(GROUND_ROW * TILE - 18, offsetY);
+    const drift = -((state.renderCameraX * 0.18) % (viewW + 240));
+    const accent = alphaColor(theme.bannerAccent, 0.72);
+    const glow = alphaColor(theme.bannerGlow, 0.55);
 
-    const sunGlow = ctx.createRadialGradient(viewW * 0.18, viewH * 0.16, 10, viewW * 0.18, viewH * 0.16, viewW * 0.36);
-    sunGlow.addColorStop(0, alphaColor(theme.haze, 0.68));
-    sunGlow.addColorStop(0.42, alphaColor(theme.haze, 0.18));
-    sunGlow.addColorStop(1, alphaColor(theme.haze, 0));
-    ctx.fillStyle = sunGlow;
-    ctx.fillRect(0, 0, viewW, viewH);
+    ctx.save();
+    ctx.globalAlpha = 1;
 
-    if (sky) {
-      ctx.save();
-      ctx.globalAlpha = 0.18;
-      if (sky.width >= 256 && sky.height >= 256) {
-        const drift = (state.renderCameraX * 0.12) % viewW;
-        ctx.drawImage(sky, -drift, 0, viewW, viewH);
-        ctx.drawImage(sky, viewW - drift, 0, viewW, viewH);
-      } else {
-        const sw = 64;
-        const sh = 64;
-        for (let x = -((state.renderCameraX * 0.15) % sw) - sw; x < viewW + sw; x += sw) {
-          for (let y = 0; y < viewH + sh; y += sh) {
-            ctx.drawImage(sky, x, y, sw, sh);
+    switch (stage.backdropStyle) {
+      case "pyramids": {
+        // Ground haze line
+        ctx.fillStyle = alphaColor("#4e3018", 0.38);
+        ctx.fillRect(0, horizonY - 12, viewW, 18);
+        // Nile river shimmer
+        ctx.fillStyle = alphaColor("#4ca7d8", 0.44);
+        ctx.fillRect(0, horizonY + 10, viewW, 8);
+        // Pyramids — much more prominent
+        drawBackdropTriangle(80 + drift, horizonY, 170, 130, alphaColor("#c8853a", 0.74), alphaColor("#f5d08a", 0.5));
+        drawBackdropTriangle(190 + drift, horizonY, 220, 172, alphaColor("#cf9b52", 0.82), alphaColor("#f5d08a", 0.5));
+        drawBackdropTriangle(340 + drift, horizonY, 120, 92, alphaColor("#c8853a", 0.68), alphaColor("#f5d08a", 0.4));
+        break;
+      }
+      case "gate": {
+        const gateX = 190 + drift;
+        ctx.fillStyle = accent;
+        ctx.fillRect(gateX, horizonY - 126, 42, 126);
+        ctx.fillRect(gateX + 150, horizonY - 126, 42, 126);
+        ctx.fillRect(gateX + 32, horizonY - 92, 128, 26);
+        ctx.beginPath();
+        ctx.arc(gateX + 96, horizonY - 64, 64, Math.PI, 0);
+        ctx.lineTo(gateX + 160, horizonY);
+        ctx.lineTo(gateX + 32, horizonY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = glow;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        break;
+      }
+      case "menorah-city": {
+        const cityX = 120 + drift;
+        ctx.fillStyle = alphaColor("#10204e", 0.4);
+        for (let i = 0; i < 6; i += 1) {
+          const w = 34 + (i % 2) * 18;
+          const h = 58 + (i % 3) * 18;
+          ctx.fillRect(cityX + i * 58, horizonY - h, w, h);
+        }
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.moveTo(cityX + 178, horizonY - 100);
+        ctx.lineTo(cityX + 178, horizonY - 28);
+        ctx.moveTo(cityX + 144, horizonY - 82);
+        ctx.quadraticCurveTo(cityX + 162, horizonY - 104, cityX + 178, horizonY - 88);
+        ctx.moveTo(cityX + 212, horizonY - 82);
+        ctx.quadraticCurveTo(cityX + 194, horizonY - 104, cityX + 178, horizonY - 88);
+        ctx.moveTo(cityX + 128, horizonY - 54);
+        ctx.quadraticCurveTo(cityX + 154, horizonY - 84, cityX + 178, horizonY - 58);
+        ctx.moveTo(cityX + 228, horizonY - 54);
+        ctx.quadraticCurveTo(cityX + 202, horizonY - 84, cityX + 178, horizonY - 58);
+        ctx.stroke();
+        break;
+      }
+      case "orchard": {
+        for (let i = 0; i < 5; i += 1) {
+          const treeX = 86 + i * 110 + drift;
+          ctx.fillStyle = alphaColor("#70502d", 0.75);
+          ctx.fillRect(treeX, horizonY - 52, 14, 54);
+          ctx.fillStyle = alphaColor("#3aac28", 0.72);
+          ctx.beginPath();
+          ctx.arc(treeX + 8, horizonY - 72, 34, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = alphaColor("#ff9fc4", 0.75);
+          ctx.beginPath();
+          ctx.arc(treeX - 6, horizonY - 86, 12, 0, Math.PI * 2);
+          ctx.arc(treeX + 24, horizonY - 84, 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        break;
+      }
+      case "sukkah-forest": {
+        for (let i = 0; i < 4; i += 1) {
+          const hutX = 110 + i * 132 + drift;
+          ctx.fillStyle = alphaColor("#8b6a3e", 0.80);
+          ctx.fillRect(hutX, horizonY - 70, 66, 52);
+          ctx.fillStyle = alphaColor("#7ab83a", 0.78);
+          ctx.beginPath();
+          ctx.moveTo(hutX - 10, horizonY - 70);
+          ctx.lineTo(hutX + 76, horizonY - 70);
+          ctx.lineTo(hutX + 56, horizonY - 96);
+          ctx.lineTo(hutX + 10, horizonY - 96);
+          ctx.closePath();
+          ctx.fill();
+        }
+        break;
+      }
+      case "palace": {
+        const palaceX = 150 + drift;
+        ctx.fillStyle = alphaColor("#65335f", 0.82);
+        ctx.fillRect(palaceX, horizonY - 84, 240, 84);
+        ctx.beginPath();
+        ctx.arc(palaceX + 56, horizonY - 84, 28, Math.PI, 0);
+        ctx.arc(palaceX + 120, horizonY - 112, 34, Math.PI, 0);
+        ctx.arc(palaceX + 188, horizonY - 84, 28, Math.PI, 0);
+        ctx.fillStyle = accent;
+        ctx.fill();
+        ctx.strokeStyle = glow;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+        break;
+      }
+      case "sinai": {
+        drawBackdropTriangle(70 + drift, horizonY, 180, 122, alphaColor("#7f9bb8", 0.76), alphaColor("#c8dff0", 0.5));
+        drawBackdropTriangle(190 + drift, horizonY, 220, 176, alphaColor("#a3bfda", 0.82), alphaColor("#c8dff0", 0.5));
+        drawBackdropTriangle(338 + drift, horizonY, 150, 102, alphaColor("#7f9bb8", 0.72), alphaColor("#c8dff0", 0.4));
+        // Lightning bolt
+        ctx.strokeStyle = alphaColor("#fff6c8", 0.85);
+        ctx.lineWidth = 5;
+        ctx.beginPath();
+        ctx.moveTo(300 + drift, horizonY - 160);
+        ctx.lineTo(286 + drift, horizonY - 130);
+        ctx.lineTo(316 + drift, horizonY - 122);
+        ctx.lineTo(302 + drift, horizonY - 92);
+        ctx.stroke();
+        break;
+      }
+      case "scroll-city": {
+        const baseX = 130 + drift;
+        ctx.fillStyle = alphaColor("#342561", 0.3);
+        for (let i = 0; i < 4; i += 1) {
+          const x = baseX + i * 92;
+          ctx.fillRect(x, horizonY - 74 - (i % 2) * 22, 54, 74 + (i % 2) * 22);
+          ctx.fillStyle = accent;
+          ctx.fillRect(x + 6, horizonY - 84 - (i % 2) * 22, 42, 12);
+          ctx.fillStyle = alphaColor("#342561", 0.3);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    ctx.restore();
+  }
+
+  function decorateStageTile(tile, drawX, drawY) {
+    const stage = currentStageInfo();
+    if (!["brick", "qblock", "hard"].includes(tile.type)) {
+      return;
+    }
+
+    ctx.save();
+    switch (stage.tileStyle) {
+      case "matzah":
+        ctx.strokeStyle = "rgba(126, 79, 24, 0.4)";
+        ctx.lineWidth = 1.5;
+        for (let row = 0; row < 3; row += 1) {
+          for (let col = 0; col < 3; col += 1) {
+            ctx.beginPath();
+            ctx.arc(drawX + 12 + col * 12, drawY + 12 + row * 12, 1.4, 0, Math.PI * 2);
+            ctx.stroke();
           }
         }
-      }
+        break;
+      case "honey":
+        ctx.fillStyle = "rgba(255, 233, 166, 0.24)";
+        ctx.fillRect(drawX + 6, drawY + 6, TILE - 12, 6);
+        ctx.fillRect(drawX + 12, drawY + 14, 6, 10);
+        ctx.fillRect(drawX + 28, drawY + 14, 6, 16);
+        break;
+      case "ember":
+        ctx.strokeStyle = "rgba(139, 231, 255, 0.32)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(drawX + 5, drawY + 5, TILE - 10, TILE - 10);
+        break;
+      case "blossom":
+        ctx.fillStyle = "rgba(255, 196, 210, 0.36)";
+        ctx.beginPath();
+        ctx.arc(drawX + 14, drawY + 14, 4, 0, Math.PI * 2);
+        ctx.arc(drawX + 20, drawY + 14, 4, 0, Math.PI * 2);
+        ctx.arc(drawX + 17, drawY + 20, 4, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case "reed":
+        ctx.strokeStyle = "rgba(224, 250, 168, 0.34)";
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < 4; i += 1) {
+          ctx.beginPath();
+          ctx.moveTo(drawX + 8 + i * 8, drawY + 10);
+          ctx.lineTo(drawX + 12 + i * 8, drawY + 22);
+          ctx.stroke();
+        }
+        break;
+      case "confetti":
+        ctx.fillStyle = "rgba(255, 214, 102, 0.3)";
+        ctx.fillRect(drawX + 8, drawY + 10, 6, 6);
+        ctx.fillStyle = "rgba(120, 226, 255, 0.26)";
+        ctx.fillRect(drawX + 24, drawY + 16, 5, 5);
+        ctx.fillStyle = "rgba(255, 122, 192, 0.28)";
+        ctx.fillRect(drawX + 16, drawY + 28, 6, 6);
+        break;
+      case "floral":
+        ctx.strokeStyle = "rgba(255, 246, 190, 0.4)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(drawX + 10, drawY + 36);
+        ctx.lineTo(drawX + 18, drawY + 18);
+        ctx.lineTo(drawX + 26, drawY + 36);
+        ctx.stroke();
+        break;
+      case "scroll":
+        ctx.fillStyle = "rgba(255, 215, 105, 0.26)";
+        ctx.fillRect(drawX + 6, drawY + 8, TILE - 12, 4);
+        ctx.fillRect(drawX + 6, drawY + TILE - 12, TILE - 12, 4);
+        break;
+      default:
+        break;
+    }
+    ctx.restore();
+  }
+
+  function decorateEnemy(enemy, x, offsetY) {
+    const stage = currentStageInfo();
+    const y = screenY(enemy.y, offsetY);
+    const centerX = x + enemy.w * 0.5;
+
+    ctx.save();
+    switch (stage.enemyStyle) {
+      case "pharaoh":
+        ctx.fillStyle = "rgba(255, 214, 112, 0.55)";
+        ctx.fillRect(x + 10, y + 6, enemy.w - 20, 8);
+        ctx.fillStyle = "rgba(50, 112, 190, 0.45)";
+        ctx.fillRect(x + 14, y + 14, enemy.w - 28, 5);
+        break;
+      case "gatekeeper":
+        ctx.strokeStyle = "rgba(255, 242, 168, 0.45)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, y + 14, 10, Math.PI, 0);
+        ctx.stroke();
+        break;
+      case "flameguard":
+        ctx.fillStyle = "rgba(147, 233, 255, 0.34)";
+        ctx.beginPath();
+        ctx.moveTo(centerX, y + 2);
+        ctx.lineTo(centerX + 8, y + 18);
+        ctx.lineTo(centerX, y + 14);
+        ctx.lineTo(centerX - 8, y + 18);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "leafling":
+        ctx.fillStyle = "rgba(132, 215, 111, 0.42)";
+        ctx.beginPath();
+        ctx.ellipse(centerX, y + 10, 12, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+      case "windling":
+        ctx.strokeStyle = "rgba(219, 244, 171, 0.42)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(centerX - 5, y + 14, 7, Math.PI * 0.2, Math.PI * 1.2);
+        ctx.arc(centerX + 7, y + 18, 9, Math.PI * 0.2, Math.PI * 1.15);
+        ctx.stroke();
+        break;
+      case "masked":
+        ctx.fillStyle = "rgba(255, 214, 122, 0.34)";
+        ctx.fillRect(x + 10, y + 12, enemy.w - 20, 10);
+        ctx.fillStyle = "rgba(25, 10, 40, 0.5)";
+        ctx.fillRect(x + 16, y + 15, 5, 3);
+        ctx.fillRect(x + enemy.w - 21, y + 15, 5, 3);
+        break;
+      case "storm":
+        ctx.strokeStyle = "rgba(255, 247, 194, 0.44)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(centerX - 6, y + 6);
+        ctx.lineTo(centerX + 1, y + 18);
+        ctx.lineTo(centerX - 3, y + 18);
+        ctx.lineTo(centerX + 5, y + 31);
+        ctx.stroke();
+        break;
+      case "scroll":
+        ctx.fillStyle = "rgba(255, 215, 115, 0.34)";
+        ctx.fillRect(x + 8, y + 8, enemy.w - 16, 5);
+        ctx.fillRect(x + 8, y + 16, enemy.w - 16, 5);
+        break;
+      default:
+        break;
+    }
+    ctx.restore();
+  }
+
+  // Cache gradients so we don't recreate expensive GPU objects every frame
+  let _cachedBgStageIndex = -1;
+  let _cachedSkyGradient = null;
+  let _cachedGlowGradient = null;
+  let _cachedGlowViewW = 0;
+  let _cachedGlowViewH = 0;
+
+  function drawBackground(viewW, viewH, offsetY) {
+    const theme = currentTheme();
+    const stageIndex = state.stageIndex;
+
+    // Rebuild cached gradients only when stage or viewport changes
+    if (_cachedBgStageIndex !== stageIndex || _cachedGlowViewW !== viewW || _cachedGlowViewH !== viewH) {
+      _cachedBgStageIndex = stageIndex;
+      _cachedGlowViewW = viewW;
+      _cachedGlowViewH = viewH;
+      _cachedSkyGradient = ctx.createLinearGradient(0, 0, 0, viewH);
+      _cachedSkyGradient.addColorStop(0, theme.skyTop);
+      _cachedSkyGradient.addColorStop(0.56, theme.skyMid);
+      _cachedSkyGradient.addColorStop(1, theme.skyBottom);
+      _cachedGlowGradient = ctx.createRadialGradient(viewW * 0.18, viewH * 0.16, 10, viewW * 0.18, viewH * 0.16, viewW * 0.36);
+      _cachedGlowGradient.addColorStop(0, alphaColor(theme.haze, 0.68));
+      _cachedGlowGradient.addColorStop(0.42, alphaColor(theme.haze, 0.18));
+      _cachedGlowGradient.addColorStop(1, alphaColor(theme.haze, 0));
+    }
+
+    ctx.fillStyle = _cachedSkyGradient;
+    ctx.fillRect(0, 0, viewW, viewH);
+    ctx.fillStyle = _cachedGlowGradient;
+    ctx.fillRect(0, 0, viewW, viewH);
+
+    // Draw holiday-specific background image (parallax, behind landmarks)
+    const stage = currentStageInfo();
+    const bgKeyMap = {
+      pyramids: "bg_pesach",
+      gate: "bg_rosh_hashanah",
+      "menorah-city": "bg_chanukah",
+      orchard: "bg_tu_bishvat",
+      "sukkah-forest": "bg_sukkot",
+      palace: "bg_purim",
+      sinai: "bg_shavuot",
+      "scroll-city": "bg_simchat_torah"
+    };
+    const bgKey = bgKeyMap[stage.backdropStyle];
+    const holidayBg = bgKey && assets[bgKey];
+    if (holidayBg) {
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      const drift = -((state.renderCameraX * 0.08) % viewW);
+      ctx.drawImage(holidayBg, drift, 0, viewW, viewH);
+      if (drift < 0) ctx.drawImage(holidayBg, drift + viewW, 0, viewW, viewH);
       ctx.restore();
     }
 
@@ -2133,6 +2705,8 @@
     const horizon = GROUND_ROW * TILE + offsetY - 120;
     ctx.fillStyle = theme.hillTint;
     ctx.fillRect(0, horizon, viewW, 160);
+
+    drawStageLandmark(viewW, viewH, offsetY);
 
     for (const cloud of state.level.sceneryClouds) {
       const x = cloud.x - state.renderCameraX * 0.45;
@@ -2189,8 +2763,11 @@
           drawY -= Math.sin(bumpNorm * Math.PI) * 8;
         }
 
+        const drawX = screenX(x * TILE);
+        const screenTileY = screenY(drawY, offsetY);
         const image = getTileImage(tile.type);
-        drawImageOrFallback(image, screenX(x * TILE), screenY(drawY, offsetY), TILE, TILE, "#7d5a34");
+        drawImageOrFallback(image, drawX, screenTileY, TILE, TILE, "#7d5a34");
+        decorateStageTile(tile, drawX, screenTileY);
       }
     }
   }
@@ -2218,6 +2795,7 @@
   }
 
   function drawFlagAndCastle(offsetY) {
+    const stage = currentStageInfo();
     const theme = currentTheme();
     const poleX = screenX(state.flagPoleX);
     const poleY = screenY((GROUND_ROW - 5) * TILE, offsetY);
@@ -2242,19 +2820,149 @@
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    ctx.fillStyle = "#766b86";
-    ctx.fillRect(castleBaseX, castleBaseY, TILE * 3.5, TILE * 2);
-    ctx.fillStyle = "#a9a4bd";
-    ctx.fillRect(castleBaseX + 8, castleBaseY + 8, TILE * 3.5 - 16, TILE * 2 - 14);
-    ctx.fillStyle = "#5b516e";
-    ctx.fillRect(castleBaseX + TILE * 1.2, castleBaseY + TILE * 1.15, TILE * 0.8, TILE * 0.85);
-    ctx.fillStyle = "#766b86";
-    ctx.fillRect(castleBaseX + TILE * 1.05, castleBaseY - TILE * 1.15, TILE * 1.15, TILE * 1.15);
-    for (let i = 0; i < 4; i += 1) {
-      ctx.fillRect(castleBaseX + i * TILE * 0.82, castleBaseY - 14, TILE * 0.45, 14);
+    switch (stage.goalStyle) {
+      case "exodus":
+        ctx.fillStyle = alphaColor("#85542a", 0.94);
+        ctx.fillRect(castleBaseX, castleBaseY + 24, TILE * 3.4, TILE * 1.55);
+        ctx.fillStyle = alphaColor("#d6b16f", 0.92);
+        ctx.fillRect(castleBaseX + 10, castleBaseY + 34, TILE * 3.4 - 20, TILE * 1.55 - 14);
+        ctx.fillStyle = alphaColor("#40a9db", 0.4);
+        ctx.fillRect(castleBaseX + TILE * 2.4, castleBaseY + TILE * 1.5, TILE * 0.9, TILE * 0.18);
+        break;
+      case "shofar":
+        ctx.fillStyle = alphaColor("#e2d1a0", 0.95);
+        ctx.fillRect(castleBaseX + 8, castleBaseY + 18, TILE * 3.2, TILE * 1.75);
+        ctx.fillStyle = alphaColor("#8c5b2a", 0.5);
+        ctx.fillRect(castleBaseX + TILE * 1.1, castleBaseY + 44, TILE * 1.2, TILE * 1.1);
+        ctx.strokeStyle = alphaColor(theme.bannerGlow, 0.8);
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.arc(castleBaseX + TILE * 1.76, castleBaseY + 22, 28, Math.PI * 1.06, Math.PI * 1.95);
+        ctx.stroke();
+        break;
+      case "menorah":
+        ctx.strokeStyle = alphaColor("#ffe8a6", 0.94);
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+        ctx.moveTo(castleBaseX + TILE * 1.76, castleBaseY + TILE * 1.72);
+        ctx.lineTo(castleBaseX + TILE * 1.76, castleBaseY + 22);
+        ctx.moveTo(castleBaseX + TILE * 1.24, castleBaseY + 34);
+        ctx.quadraticCurveTo(castleBaseX + TILE * 1.48, castleBaseY + 6, castleBaseX + TILE * 1.76, castleBaseY + 30);
+        ctx.moveTo(castleBaseX + TILE * 2.28, castleBaseY + 34);
+        ctx.quadraticCurveTo(castleBaseX + TILE * 2.04, castleBaseY + 6, castleBaseX + TILE * 1.76, castleBaseY + 30);
+        ctx.stroke();
+        break;
+      case "orchard":
+        ctx.fillStyle = alphaColor("#7a5b35", 0.92);
+        ctx.fillRect(castleBaseX + TILE * 0.5, castleBaseY + TILE * 0.75, 18, TILE * 1.25);
+        ctx.fillRect(castleBaseX + TILE * 2.3, castleBaseY + TILE * 0.75, 18, TILE * 1.25);
+        ctx.beginPath();
+        ctx.arc(castleBaseX + TILE * 0.95, castleBaseY + TILE * 0.78, 32, Math.PI, 0);
+        ctx.arc(castleBaseX + TILE * 2.45, castleBaseY + TILE * 0.78, 32, Math.PI, 0);
+        ctx.fillStyle = alphaColor("#8ad56e", 0.86);
+        ctx.fill();
+        break;
+      case "sukkah":
+        ctx.fillStyle = alphaColor("#8c6a44", 0.92);
+        ctx.fillRect(castleBaseX + 10, castleBaseY + 28, TILE * 3.1, TILE * 1.4);
+        ctx.fillStyle = alphaColor("#badb87", 0.82);
+        ctx.beginPath();
+        ctx.moveTo(castleBaseX, castleBaseY + 28);
+        ctx.lineTo(castleBaseX + TILE * 3.35, castleBaseY + 28);
+        ctx.lineTo(castleBaseX + TILE * 2.8, castleBaseY + 4);
+        ctx.lineTo(castleBaseX + TILE * 0.45, castleBaseY + 4);
+        ctx.closePath();
+        ctx.fill();
+        break;
+      case "palace":
+        ctx.fillStyle = alphaColor("#6c4c83", 0.92);
+        ctx.fillRect(castleBaseX, castleBaseY + 18, TILE * 3.4, TILE * 1.82);
+        ctx.beginPath();
+        ctx.arc(castleBaseX + TILE * 0.72, castleBaseY + 18, 24, Math.PI, 0);
+        ctx.arc(castleBaseX + TILE * 1.72, castleBaseY - 8, 34, Math.PI, 0);
+        ctx.arc(castleBaseX + TILE * 2.72, castleBaseY + 18, 24, Math.PI, 0);
+        ctx.fillStyle = alphaColor("#d48db4", 0.88);
+        ctx.fill();
+        break;
+      case "tablets":
+        ctx.fillStyle = alphaColor("#d9e6f5", 0.95);
+        ctx.fillRect(castleBaseX + TILE * 0.6, castleBaseY + 14, TILE * 0.9, TILE * 1.7);
+        ctx.fillRect(castleBaseX + TILE * 1.65, castleBaseY + 14, TILE * 0.9, TILE * 1.7);
+        ctx.beginPath();
+        ctx.arc(castleBaseX + TILE * 1.05, castleBaseY + 14, 22, Math.PI, 0);
+        ctx.arc(castleBaseX + TILE * 2.1, castleBaseY + 14, 22, Math.PI, 0);
+        ctx.fill();
+        break;
+      case "scroll":
+        ctx.fillStyle = alphaColor("#f2d8a1", 0.94);
+        ctx.fillRect(castleBaseX + TILE * 0.9, castleBaseY + 4, TILE * 1.4, TILE * 1.86);
+        ctx.fillStyle = alphaColor("#c79f4b", 0.95);
+        ctx.fillRect(castleBaseX + TILE * 0.78, castleBaseY + 4, 12, TILE * 1.86);
+        ctx.fillRect(castleBaseX + TILE * 2.26, castleBaseY + 4, 12, TILE * 1.86);
+        break;
+      default:
+        ctx.fillStyle = "#766b86";
+        ctx.fillRect(castleBaseX, castleBaseY, TILE * 3.5, TILE * 2);
+        break;
     }
-    ctx.fillStyle = alphaColor(theme.bannerGlow, 0.26);
-    ctx.fillRect(castleBaseX + TILE * 1.26, castleBaseY + TILE * 1.3, TILE * 0.32, TILE * 0.2);
+
+    if (stage.goalLabel) {
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#fff5c6";
+      ctx.font = '700 16px "Rubik", "Heebo", sans-serif';
+      ctx.fillText(stage.goalLabel, castleBaseX + TILE * 1.7, castleBaseY - 20);
+      ctx.textAlign = "left";
+    }
+    ctx.restore();
+  }
+
+  function drawStageAtmosphereOverlay(viewW, viewH, offsetY) {
+    const stage = currentStageInfo();
+
+    if (!stage.darkness && !stage.lightningFlash) {
+      return;
+    }
+
+    ctx.save();
+
+    if (stage.darkness) {
+      const playerX = screenX(state.player.x + state.player.w * 0.5);
+      const playerY = screenY(state.player.y + state.player.h * 0.45, offsetY);
+      ctx.fillStyle = `rgba(4, 8, 22, ${stage.darkness})`;
+      ctx.fillRect(0, 0, viewW, viewH);
+      ctx.globalCompositeOperation = "destination-out";
+      const halo = ctx.createRadialGradient(playerX, playerY, 24, playerX, playerY, 184);
+      halo.addColorStop(0, "rgba(0, 0, 0, 0.96)");
+      halo.addColorStop(0.38, "rgba(0, 0, 0, 0.52)");
+      halo.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = halo;
+      ctx.fillRect(playerX - 220, playerY - 220, 440, 440);
+      ctx.globalCompositeOperation = "screen";
+      const warmGlow = ctx.createRadialGradient(playerX, playerY, 12, playerX, playerY, 140);
+      warmGlow.addColorStop(0, "rgba(255, 237, 180, 0.42)");
+      warmGlow.addColorStop(0.3, "rgba(255, 213, 124, 0.18)");
+      warmGlow.addColorStop(1, "rgba(255, 213, 124, 0)");
+      ctx.fillStyle = warmGlow;
+      ctx.fillRect(playerX - 180, playerY - 180, 360, 360);
+      ctx.globalCompositeOperation = "source-over";
+    }
+
+    if (stage.lightningFlash) {
+      const flash = clamp((Math.sin(state.stageAmbientTimer * 1.6) - 0.93) / 0.07, 0, 1);
+      if (flash > 0) {
+        ctx.fillStyle = `rgba(255, 250, 224, ${0.12 * flash})`;
+        ctx.fillRect(0, 0, viewW, viewH);
+        ctx.strokeStyle = `rgba(255, 252, 210, ${0.7 * flash})`;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(viewW * 0.74, 0);
+        ctx.lineTo(viewW * 0.7, viewH * 0.18);
+        ctx.lineTo(viewW * 0.77, viewH * 0.34);
+        ctx.lineTo(viewW * 0.72, viewH * 0.54);
+        ctx.stroke();
+      }
+    }
+
     ctx.restore();
   }
 
@@ -2270,12 +2978,29 @@
   }
 
   function drawEnemies(offsetY) {
+    const stage = currentStageInfo();
+    // Pick the holiday-specific enemy skin if loaded
+    const enemyKeyMap = {
+      pharaoh: "enemy_pharaoh",
+      gatekeeper: "enemy_gatekeeper",
+      flameguard: "enemy_flameguard",
+      leafling: "enemy_leafling",
+      windling: "enemy_windling",
+      masked: "enemy_masked",
+      storm: "enemy_storm",
+      scroll: "enemy_scroll"
+    };
+    const skinKey = enemyKeyMap[stage.enemyStyle];
+    const skinImg = (skinKey && assets[skinKey]) || assets.goomba;
+    const squishImg = (skinKey && assets[skinKey]) || assets.goomba_squish || assets.goomba;
+
     for (const enemy of state.enemies) {
       const x = screenX(enemy.x);
       if (enemy.dead) {
-        drawImageOrFallback(assets.goomba_squish || assets.goomba, x, screenY(enemy.y + enemy.h * 0.45, offsetY), enemy.w, enemy.h * 0.55, "#7f4f2f");
+        drawImageOrFallback(squishImg, x, screenY(enemy.y + enemy.h * 0.45, offsetY), enemy.w, enemy.h * 0.55, "#7f4f2f");
       } else {
-        drawImageOrFallback(assets.goomba, x, screenY(enemy.y, offsetY), enemy.w, enemy.h, "#7f4f2f");
+        drawImageOrFallback(skinImg, x, screenY(enemy.y, offsetY), enemy.w, enemy.h, "#7f4f2f");
+        decorateEnemy(enemy, x, offsetY);
       }
     }
   }
@@ -2448,7 +3173,7 @@
     const theme = currentTheme();
     const slide = (1 - alpha) * 18;
     const panelW = Math.min(viewW * 0.82, 540);
-    const panelH = 96;
+    const panelH = 112;
     const panelX = (viewW - panelW) * 0.5;
     const panelY = 26 + slide;
 
@@ -2468,12 +3193,12 @@
     ctx.textAlign = "center";
     ctx.fillStyle = "#fff5a8";
     ctx.font = '800 34px "Rubik", "Heebo", sans-serif';
-    ctx.fillText(state.stageBannerTitle, panelX + panelW * 0.5, panelY + 42);
+    ctx.fillText(state.stageBannerTitle, panelX + panelW * 0.5, panelY + 46);
 
     if (state.stageBannerSubtitle) {
       ctx.fillStyle = "#d9ecff";
-      ctx.font = '700 19px "Rubik", "Heebo", sans-serif';
-      ctx.fillText(state.stageBannerSubtitle, panelX + panelW * 0.5, panelY + 74);
+      ctx.font = '700 18px "Rubik", "Heebo", sans-serif';
+      ctx.fillText(state.stageBannerSubtitle, panelX + panelW * 0.5, panelY + 84);
     }
 
     ctx.restore();
@@ -2499,14 +3224,19 @@
     drawPlayerShadow(offsetY);
     drawParticles(offsetY);
     drawPlayer(offsetY);
+    drawStageAtmosphereOverlay(viewW, viewH, offsetY);
     drawFloatingText(offsetY);
     drawStageBanner(viewW);
   }
 
   function updateHud() {
+    const stage = currentStageInfo();
     hud.score.textContent = pad(state.score, 6);
     hud.coins.textContent = `x${pad(state.coins, 2)}`;
-    hud.world.textContent = `${state.world} (${state.stageIndex + 1}/${STAGE_CONFIGS.length})`;
+    hud.world.textContent = `${state.world} · ${state.stageIndex + 1}/${STAGE_CONFIGS.length}`;
+    if (hud.objective) {
+      hud.objective.textContent = stage.hudFocus || stage.goalLabel || stage.subtitle || "";
+    }
     hud.time.textContent = pad(Math.max(0, state.timeLeft), 3);
     hud.lives.textContent = `x${state.lives}`;
   }
@@ -2552,7 +3282,7 @@
     canvas.height = Math.floor(cssH * ratio);
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    ctx.imageSmoothingQuality = "medium"; // "high" is expensive; medium is visually identical at game scale
   }
 
   let lastFrame = performance.now();

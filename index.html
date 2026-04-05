@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>סופר איתן</title>
+  <title>סופר איתן: מסע החגים</title>
   <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,12 +20,16 @@
       <strong id="hudScore" class="hud-value">000000</strong>
     </div>
     <div class="hud-card">
-      <span class="hud-label">מטבעות</span>
+      <span class="hud-label">אוספים</span>
       <strong id="hudCoins" class="hud-value">x00</strong>
     </div>
     <div class="hud-card">
-      <span class="hud-label">שלב</span>
-      <strong id="hudWorld" class="hud-value">1-1</strong>
+      <span class="hud-label">חג</span>
+      <strong id="hudWorld" class="hud-value hud-value-text">פסח</strong>
+    </div>
+    <div class="hud-card hud-card-wide">
+      <span class="hud-label">מוקד השלב</span>
+      <strong id="hudObjective" class="hud-value hud-value-wrap">לבני מצה נשברות</strong>
     </div>
     <div class="hud-card">
       <span class="hud-label">זמן</span>
@@ -43,9 +47,9 @@
         <button id="startBtn" class="start-cta" type="button">התחל משחק</button>
       </div>
       <img class="title-logo" src="assets/logo.png" alt="לוגו סופר איתן">
-      <p class="eyebrow">פלטפורמר שכונתי מהיר בצבעוניות 2026</p>
+      <p class="eyebrow">פלטפורמר חגי ישראל עם קצב של מריו</p>
       <h1>סופר איתן</h1>
-      <p class="lead">ריצה, קפיצה והמון תנופה בעולם צבעוני, חד ומלא אנרגיה.</p>
+      <p class="lead">מסע בין חגי השנה: יציאה ממצרים, שערי שופר, מבצרי אור, סוכות מתנדנדות, מסכות, ברקים, ופסגת סיום חגיגית.</p>
       <p class="touch-hint">במובייל: השתמשו בכפתורי המגע שבתחתית המסך.</p>
       <ul class="control-list" aria-label="מקשי שליטה">
         <li><span class="keycap">A / D / ← →</span><span>תנועה</span></li>
@@ -63,7 +67,7 @@
         <button id="closeHelpBtn" class="help-close" type="button">סגור</button>
       </div>
       <h1>מקשים</h1>
-      <p class="lead">אפשר לפתוח את חלון העזרה הזה גם תוך כדי המשחק מהכפתור העליון.</p>
+      <p class="lead">כל שלב מייצג חג אחר. שימו לב לכותרת שמופיעה בתחילת השלב: היא מציינת את החג, האיום המרכזי והיעד של אותו עולם.</p>
       <ul class="control-list help-list" aria-label="הוראות משחק">
         <li><span class="keycap">A / D / ← →</span><span>תנועה</span></li>
         <li><span class="keycap">Space / Z / ↑</span><span>קפיצה</span></li>
@@ -75,18 +79,18 @@
 
   <div id="gameOverScreen" class="overlay hidden" dir="rtl">
     <div class="overlay-card compact">
-      <p class="eyebrow">ההרפתקה נעצרה</p>
+      <p class="eyebrow">מחזור השנה נקטע</p>
       <h1>נגמרו החיים</h1>
-      <p class="lead">חוזרים מיד לעוד ריצה עם יותר תנופה ופחות נפילות.</p>
+      <p class="lead">חוזרים לעוד ריצה, מתקנים את המסלול, וממשיכים להחזיר את חגי השנה למקומם.</p>
       <button id="retryBtn" type="button">נסה שוב</button>
     </div>
   </div>
 
   <div id="winScreen" class="overlay hidden" dir="rtl">
     <div class="overlay-card compact">
-      <p class="eyebrow">סיום מושלם</p>
-      <h1>כל הכבוד!</h1>
-      <p class="lead">איתן סיים את כל 4 השלבים והגיע לטירה האחרונה.</p>
+      <p class="eyebrow">מעגל השנה הושלם</p>
+      <h1 id="winTitle">כל הכבוד!</h1>
+      <p id="winLead" class="lead">איתן השלים את מסע החגים, חיבר מחדש את כל העולמות, והחזיר את השנה למקומה.</p>
       <button id="againBtn" type="button">שחק שוב</button>
     </div>
   </div>
