@@ -435,6 +435,10 @@
     playerWin: false
   };
   const audio = { context: null };
+  const solidRectPool = [];
+  const collisionScratchA = [];
+  const collisionScratchB = [];
+  const supportScratch = [];
 
   const state = {
     mode: "title",
@@ -496,6 +500,10 @@
 
   function currentTheme() {
     return currentStageInfo().theme || STAGE_CONFIGS[0].theme;
+  }
+
+  function isVisibleX(x, width, margin = 96) {
+    return x + width >= -margin && x <= canvas.clientWidth + margin;
   }
 
   function screenX(worldX) {
@@ -1173,7 +1181,8 @@
       tiles,
       pipes: [],
       sceneryClouds: [],
-      sceneryBushes: []
+      sceneryBushes: [],
+      activeBumpTiles: []
     };
 
     function setTile(x, y, type, extras = {}) {
@@ -1184,6 +1193,7 @@
         type,
         solid: ["ground", "dirt", "brick", "qblock", "empty", "hard"].includes(type),
         bump: 0,
+        bumpActive: false,
         ...extras
       };
     }
@@ -1311,7 +1321,7 @@
       vy: 0,
       baseY: y,
       alive: true,
-      t: 0
+      bobPhase: Math.random() * Math.PI * 2
     });
   }
 
@@ -1352,7 +1362,7 @@
         return;
       }
       const coinRect = { x: tx * TILE + 10, y: ty * TILE + 10, w: 28, h: 28 };
-      const blockers = getVisibleSolidRects(state.level, coinRect.x, coinRect.y, coinRect.w, coinRect.h);
+      const blockers = getVisibleSolidRects(state.level, coinRect.x, coinRect.y, coinRect.w, coinRect.h, collisionScratchA);
       for (const blocker of blockers) {
         if (overlap(coinRect, blocker)) {
           return;
@@ -1425,13 +1435,21 @@
     }
   }
 
-  function getVisibleSolidRects(level, x, y, w, h) {
+  function getPooledSolid(index) {
+    if (!solidRectPool[index]) {
+      solidRectPool[index] = {};
+    }
+    return solidRectPool[index];
+  }
+
+  function getVisibleSolidRects(level, x, y, w, h, out = []) {
     const minX = Math.floor((x - TILE) / TILE);
     const maxX = Math.floor((x + w + TILE) / TILE);
     const minY = Math.floor((y - TILE) / TILE);
     const maxY = Math.floor((y + h + TILE) / TILE);
 
-    const solids = [];
+    out.length = 0;
+    let index = 0;
 
     for (let ty = minY; ty <= maxY; ty += 1) {
       for (let tx = minX; tx <= maxX; tx += 1) {
@@ -1439,7 +1457,17 @@
         if (!tile || !tile.solid) {
           continue;
         }
-        solids.push({ x: tx * TILE, y: ty * TILE, w: TILE, h: TILE, tx, ty, tile, category: "tile" });
+        const solid = getPooledSolid(index);
+        solid.x = tx * TILE;
+        solid.y = ty * TILE;
+        solid.w = TILE;
+        solid.h = TILE;
+        solid.tx = tx;
+        solid.ty = ty;
+        solid.tile = tile;
+        solid.category = "tile";
+        out.push(solid);
+        index += 1;
       }
     }
 
@@ -1447,10 +1475,21 @@
       if (pipe.x + pipe.w < x - TILE || pipe.x > x + w + TILE || pipe.y + pipe.h < y - TILE || pipe.y > y + h + TILE) {
         continue;
       }
-      solids.push({ ...pipe, category: "pipe" });
+      const solid = getPooledSolid(index);
+      solid.x = pipe.x;
+      solid.y = pipe.y;
+      solid.w = pipe.w;
+      solid.h = pipe.h;
+      solid.heightTiles = pipe.heightTiles;
+      solid.tx = -1;
+      solid.ty = -1;
+      solid.tile = null;
+      solid.category = "pipe";
+      out.push(solid);
+      index += 1;
     }
 
-    return solids;
+    return out;
   }
 
   function settleTileHitFromBelow(solid) {
@@ -1463,6 +1502,10 @@
     }
 
     tile.bump = 0.15;
+    if (!tile.bumpActive) {
+      tile.bumpActive = true;
+      state.level.activeBumpTiles.push(tile);
+    }
     const worldX = solid.x + TILE / 2;
     const worldY = solid.y;
 
@@ -1511,7 +1554,7 @@
     const level = state.level;
 
     entity.x += entity.vx * dt;
-    let solids = getVisibleSolidRects(level, entity.x, entity.y, entity.w, entity.h);
+    let solids = getVisibleSolidRects(level, entity.x, entity.y, entity.w, entity.h, collisionScratchA);
     for (const s of solids) {
       if (!overlap(entity, s)) {
         continue;
@@ -1528,7 +1571,7 @@
 
     const prevY = entity.y;
     entity.y += entity.vy * dt;
-    solids = getVisibleSolidRects(level, entity.x, entity.y, entity.w, entity.h);
+    solids = getVisibleSolidRects(level, entity.x, entity.y, entity.w, entity.h, collisionScratchB);
 
     for (const s of solids) {
       if (!overlap(entity, s)) {
@@ -1966,7 +2009,7 @@
         w: 4,
         h: 4
       };
-      const solids = getVisibleSolidRects(state.level, probe.x, probe.y, probe.w, probe.h);
+      const solids = getVisibleSolidRects(state.level, probe.x, probe.y, probe.w, probe.h, supportScratch);
       for (const s of solids) {
         if (overlap(probe, s)) {
           return true;
@@ -2049,6 +2092,7 @@
 
   function updateItems(dt) {
     const p = state.player;
+    const bobTime = state.stageAmbientTimer * 7;
 
     for (const item of state.items) {
       if (!item.alive) {
@@ -2056,8 +2100,7 @@
       }
 
       if (item.kind === "coin") {
-        item.t += dt;
-        item.y = item.baseY + Math.sin(item.t * 7) * 5;
+        item.y = item.baseY + Math.sin(bobTime + item.bobPhase) * 5;
       } else if (item.kind === "mushroom") {
         item.vy = clamp(item.vy + GRAVITY * dt, -900, MAX_FALL);
         moveWithCollisions(item, dt, null);
@@ -2083,16 +2126,13 @@
   }
 
   function updateTiles(dt) {
-    const level = state.level;
-    for (let y = 0; y < level.rows; y += 1) {
-      for (let x = 0; x < level.cols; x += 1) {
-        const tile = level.tiles[y][x];
-        if (!tile) {
-          continue;
-        }
-        if (tile.bump > 0) {
-          tile.bump = Math.max(0, tile.bump - dt);
-        }
+    const active = state.level.activeBumpTiles;
+    for (let i = active.length - 1; i >= 0; i -= 1) {
+      const tile = active[i];
+      tile.bump = Math.max(0, tile.bump - dt);
+      if (tile.bump <= 0) {
+        tile.bumpActive = false;
+        active.splice(i, 1);
       }
     }
   }
@@ -2645,6 +2685,7 @@
   let _cachedBgStageIndex = -1;
   let _cachedSkyGradient = null;
   let _cachedGlowGradient = null;
+  let _cachedVignetteGradient = null;
   let _cachedGlowViewW = 0;
   let _cachedGlowViewH = 0;
 
@@ -2665,6 +2706,9 @@
       _cachedGlowGradient.addColorStop(0, alphaColor(theme.haze, 0.68));
       _cachedGlowGradient.addColorStop(0.42, alphaColor(theme.haze, 0.18));
       _cachedGlowGradient.addColorStop(1, alphaColor(theme.haze, 0));
+      _cachedVignetteGradient = ctx.createLinearGradient(0, viewH * 0.3, 0, viewH);
+      _cachedVignetteGradient.addColorStop(0, "rgba(255,255,255,0)");
+      _cachedVignetteGradient.addColorStop(1, alphaColor(theme.bushTint, 0.72));
     }
 
     ctx.fillStyle = _cachedSkyGradient;
@@ -2710,6 +2754,9 @@
 
     for (const cloud of state.level.sceneryClouds) {
       const x = cloud.x - state.renderCameraX * 0.45;
+      if (!isVisibleX(x, cloud.w, 160)) {
+        continue;
+      }
       const image = cloud.variant ? cloudAlt : cloudImg;
       ctx.save();
       ctx.globalAlpha = cloud.variant ? 0.74 : 0.88;
@@ -2730,6 +2777,9 @@
 
     for (const bush of state.level.sceneryBushes) {
       const x = bush.x - state.renderCameraX * 0.78;
+      if (!isVisibleX(x, bush.w, 180)) {
+        continue;
+      }
       const image = bush.variant ? bushAlt : bushImg;
       ctx.save();
       ctx.globalAlpha = 0.92;
@@ -2737,10 +2787,7 @@
       ctx.restore();
     }
 
-    const vignette = ctx.createLinearGradient(0, viewH * 0.3, 0, viewH);
-    vignette.addColorStop(0, "rgba(255,255,255,0)");
-    vignette.addColorStop(1, alphaColor(theme.bushTint, 0.72));
-    ctx.fillStyle = vignette;
+    ctx.fillStyle = _cachedVignetteGradient;
     ctx.fillRect(0, viewH * 0.3, viewW, viewH * 0.7);
   }
 
@@ -2777,11 +2824,14 @@
     const bodyImg = assets.pipe_body;
 
     for (const pipe of state.level.pipes) {
+      const drawX = screenX(pipe.x);
+      if (!isVisibleX(drawX, pipe.w, 96)) {
+        continue;
+      }
       for (let i = 0; i < pipe.heightTiles; i += 1) {
         const py = pipe.y + i * TILE;
         const isTop = i === 0;
         const img = isTop ? topImg : bodyImg;
-        const drawX = screenX(pipe.x);
         const drawY = screenY(py, offsetY);
         drawImageOrFallback(img, drawX, drawY, pipe.w, TILE, "#169b3d");
         ctx.save();
@@ -2969,6 +3019,9 @@
   function drawItems(offsetY) {
     for (const item of state.items) {
       const x = screenX(item.x);
+      if (!isVisibleX(x, item.w, 72)) {
+        continue;
+      }
       if (item.kind === "coin") {
         drawImageOrFallback(assets.coin, x, screenY(item.y, offsetY), item.w, item.h, "#f6da55");
       } else if (item.kind === "mushroom") {
@@ -2996,6 +3049,9 @@
 
     for (const enemy of state.enemies) {
       const x = screenX(enemy.x);
+      if (!isVisibleX(x, enemy.w, 72)) {
+        continue;
+      }
       if (enemy.dead) {
         drawImageOrFallback(squishImg, x, screenY(enemy.y + enemy.h * 0.45, offsetY), enemy.w, enemy.h * 0.55, "#7f4f2f");
       } else {
